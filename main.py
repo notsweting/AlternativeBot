@@ -232,23 +232,6 @@ async def help(ctx, info=None):
 @bot.command()
 async def ping(ctx):
    await ctx.send(f":ping_pong: Pong! {round(bot.latency * 1000)}ms")
-
-#suggest
-@bot.command()
-async def suggest(ctx, *, field=None):
-  if field == None:
-    await ctx.send('This command is temporarily disabled. Suggestions made may not be processed correctly.')
-    await ctx.send('What would you like to suggest?')
-    def check(message : discord.Message) -> bool:
-      return message.author == ctx.author and message.channel==ctx.channel
-
-    try:
-      field = await bot.wait_for('message', timeout = 29, check = check)
-    except asyncio.TimeoutError: 
-      await ctx.send(f"You took too long to respond!")            
-    else:
-      pass
-
        
 #about command
 @bot.command()
@@ -561,7 +544,7 @@ async def leave(ctx):
 @bot.command()
 async def suggest(ctx, *, suggestion = None):
   user = bot.get_user(447119084627427351)
-  if description != None:
+  if suggestion != None:
     await ctx.send(f'Thanks for your suggestion!')
     embed=discord.Embed(title='AlternativeBot Suggestion Form', color=ctx.author.color, timestamp=ctx.message.created_at)
     embed.set_footer(text=f'AltBot1 {bot_version}')
