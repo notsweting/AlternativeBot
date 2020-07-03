@@ -360,11 +360,11 @@ async def declinebug(ctx, userid, bug_number):
     await user.send(f'Your bug report {bug_number} has been declined.')
 
 @bot.command()
-async def bugreport(ctx, *, description=None,):
-  bug_number = random.randint(0, 100)
+async def bugreport(ctx, *, description=None):
+  bug_number = random.randint(0, 500)
+  user = bot.get_user(447119084627427351)
   if description != None:
-    user = bot.get_user(447119084627427351)
-    await ctx.send(f'''Your bug has been reported!''')
+    await ctx.send(f'Your bug has been reported!')
     embed=discord.Embed(title='AltBot1 Bug Report', color=ctx.author.color, timestamp=ctx.message.created_at)
     embed.set_footer(text=f'AltBot1 {bot_version}')
     embed.add_field(name='Description:', value=description)
@@ -383,7 +383,6 @@ async def bugreport(ctx, *, description=None,):
     except asyncio.TimeoutError: 
         await ctx.send("You took too long to respond!")            
     else: 
-      user = bot.get_user(447119084627427351)
       await ctx.send(f'''Your bug has been reported!''')
       embed=discord.Embed(title='AltBot1 bug report', color=ctx.author.color, timestamp=ctx.message.created_at)
       embed.set_footer(text=f'AltBot1 {bot_version}')
@@ -392,8 +391,6 @@ async def bugreport(ctx, *, description=None,):
       embed.add_field(name='Bug ID:', value=bug_number)
       await ctx.send(embed=embed)
       await user.send(embed=embed)
-    finally: 
-        pass
 
 @commands.has_permissions(kick_members=True)   
 @bot.command()
@@ -560,6 +557,36 @@ async def leave(ctx):
         pass
   else:
     await ctx.send(NotInGuild)
+
+@bot.command()
+async def suggest(ctx, *, suggestion = None):
+  user = bot.get_user(447119084627427351)
+  if description != None:
+    await ctx.send(f'Thanks for your suggestion!')
+    embed=discord.Embed(title='AlternativeBot Suggestion Form', color=ctx.author.color, timestamp=ctx.message.created_at)
+    embed.set_footer(text=f'AltBot1 {bot_version}')
+    embed.add_field(name='Suggestion', value=description.content)
+    embed.add_field(name='Suggested by', value=ctx.author.mention)
+    await ctx.send(embed=embed)
+    await user.send(embed=embed)
+  else:
+    await ctx.send('**Suggestion wizard**\n\nFollow the prompts and answer them!')
+    await ctx.send('What would you like to suggest?')
+    
+    def check(message : discord.Message) -> bool:
+        return message.author == ctx.author
+    try:
+        description = await bot.wait_for('message', timeout = 60, check=check)
+    except asyncio.TimeoutError: 
+        await ctx.send("You took too long to respond!")            
+    else: 
+      await ctx.send(f'Thanks for your suggestion!')
+      embed=discord.Embed(title='AlternativeBot Suggestion Form', color=ctx.author.color, timestamp=ctx.message.created_at)
+      embed.set_footer(text=f'AltBot1 {bot_version}')
+      embed.add_field(name='Suggestion', value=description.content)
+      embed.add_field(name='Suggested by', value=ctx.author.mention)
+      await ctx.send(embed=embed)
+      await user.send(embed=embed)
   
 @bot.command()
 async def rockpaperscissors(ctx, member: discord.Member):
