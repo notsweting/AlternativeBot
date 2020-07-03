@@ -587,40 +587,37 @@ async def rockpaperscissors(ctx, member: discord.Member):
     memberresponse = await bot.wait_for('message', timeout = 29, check = check2)
   except asyncio.TimeoutError: 
     await member.send(f"{ctx.author.name} took too long to respond!")            
-  else: 
-    return memberresponse   
+  else:
 
-  try:
-    authorresponse = await bot.wait_for('message', timeout = 29, check = check2)
-  except asyncio.TimeoutError: 
-    await member.send(f"{ctx.author.name} took too long to respond!")            
-  else: 
-    return authorresponse
-    
-    await asyncio.sleep(30)
-    if authorresponse == 'rock' and memberresponse == 'scissors':
-      await ctx.author.send(f'You won! {member.name} chose scissors')
-      await member.send(f'You lost. {ctx.author.name} chose rock.')
-    elif authorresponse == 'scissors' and memberresponse == 'paper':
-      await ctx.author.send(f'You won! {member.name} chose {memberresponse}')
-      await member.send(f'You lost. {ctx.author.name} chose {authorresponse}.')
-    elif authorresponse == 'paper' and memberresponse == 'rock':
-      await ctx.author.send(f'You won! {member.name} chose {memberresponse}')
-      await member.send(f'You lost. {ctx.author.name} chose {authorresponse}.')
-    elif authorresponse == memberresponse:
-      await ctx.author.send(f'You tied! {member.name} chose {memberresponse}')
-      await member.send(f'You tied! {ctx.author.name} chose {authorresponse}')
-    elif memberresponse == 'rock' and authorresponse == 'scissors':
-      await member.send(f'You won! {ctx.author.name} chose {authorresponse}')
-      await ctx.author.send(f'You lost. {member.name} chose {memberresponse}.')
-    elif memberresponse == 'paper' and authorresponse == 'rock':
-      await member.send(f'You won! {ctx.author.name} chose {authorresponse}')
-      await ctx.author.send(f'You lost. {member.name} chose {memberresponse}.')
-    elif memberresponse == 'scissors' and authorresponse == 'paper':
-      await member.send(f'You won! {ctx.author.name} chose {authorresponse}')
-      await ctx.author.send(f'You lost. {member.name} chose {memberresponse}.')
-    else:
-      pass
+    try:
+      authorresponse = await bot.wait_for('message', timeout = 29, check = check2)
+    except asyncio.TimeoutError: 
+      await member.send(f"{ctx.author.name} took too long to respond!")            
+    else:   
+      
+      if authorresponse == 'rock' and memberresponse == 'scissors':
+        await ctx.author.send(f'You won! {member.name} chose scissors')
+        await member.send(f'You lost. {ctx.author.name} chose rock.')
+      elif authorresponse == 'scissors' and memberresponse == 'paper':
+        await ctx.author.send(f'You won! {member.name} chose {memberresponse}')
+        await member.send(f'You lost. {ctx.author.name} chose {authorresponse}.')
+      elif authorresponse == 'paper' and memberresponse == 'rock':
+        await ctx.author.send(f'You won! {member.name} chose {memberresponse}')
+        await member.send(f'You lost. {ctx.author.name} chose {authorresponse}.')
+      elif authorresponse == memberresponse:
+        await ctx.author.send(f'You tied! {member.name} chose {memberresponse}')
+        await member.send(f'You tied! {ctx.author.name} chose {authorresponse}')
+      elif memberresponse == 'rock' and authorresponse == 'scissors':
+        await member.send(f'You won! {ctx.author.name} chose {authorresponse}')
+        await ctx.author.send(f'You lost. {member.name} chose {memberresponse}.')
+      elif memberresponse == 'paper' and authorresponse == 'rock':
+        await member.send(f'You won! {ctx.author.name} chose {authorresponse}')
+        await ctx.author.send(f'You lost. {member.name} chose {memberresponse}.')
+      elif memberresponse == 'scissors' and authorresponse == 'paper':
+        await member.send(f'You won! {ctx.author.name} chose {authorresponse}')
+        await ctx.author.send(f'You lost. {member.name} chose {memberresponse}.')
+      else:
+        pass
     
   finally: 
     pass
