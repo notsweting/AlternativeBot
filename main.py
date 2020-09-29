@@ -7,8 +7,9 @@ from itertools import cycle
 import time
 import pickle
 import json
- 
-bot = commands.Bot(command_prefix = ["/", '@'], case_insensitive=True)
+from bettertoken import token
+
+bot = commands.Bot(command_prefix = commands.when_mentioned_or('/', '@'), case_insensitive=True)
 bot.remove_command('help')
 bot_version = 'Version 0.1.9 [BETA]'
 bot_invite = 'https://discord.gg/33utPs9'
@@ -22,41 +23,48 @@ statusremember = cycle(['Lest we forget', 'Lest we forget', 'Lest we forget', bo
 statushalloween = cycle(['/help is the way to go!', 'Use /about to learn more!', 'Happy Halloween!', 'Happy Halloween!', 'Happy Halloween!', bot_version, bot_invite])
 dev= cycle(['UNDER TESTING. UNSTABLE.', 'UNSTABLE.', bot_version])
 if statuschoice == 'a':
- status = regularstatus
+    status = regularstatus
 elif statuschoice == 'b':
- status = statusremember
+    status = statusremember
 elif statuschoice == 'd':
- status = dev
+    status = dev
 else:
- status = statushalloween
+    status = statushalloween
 
 @bot.event
 async def on_command_error(ctx, error):
-  error = getattr(error, "original", error)
-  if isinstance(error, commands.CommandNotFound):
-    pass
-  elif isinstance(error, commands.MissingPermissions):
-    await ctx.send ('You don\'t have permmission to do that!')
-  elif isinstance(error, commands.MissingRequiredArgument):
-    await ctx.send('You\'re missing an argument. Check the command and ensure that all arguments are present.')
-  elif str(error).startswith('Member "'):
-    MemberNotInGuild = discord.Embed (description=(':x: The member was not found.'), color=ctx.author.color)
-    await ctx.send(embed=MemberNotInGuild)
-  elif isinstance(error, commands.BadArgument):
-    await ctx.send('One or more of your arguments didn\'t make sense. Make sure your arguments are valid, then try again.')
-  elif isinstance(error, discord.Forbidden):
-    await ctx.send('I don\'t have permission to do that! Make sure I have the correct permissions, then try again.')
-  else:
-    print (error)
-    await ctx.send (f'Hm. Didn\'t work. Check the command and make sure all conditions are met. **Error:** *{error}*')
+    error = getattr(error, "original", error)
+    if isinstance(error, commands.CommandNotFound):
+        pass
+    elif isinstance(error, commands.MissingPermissions):
+        await ctx.send ('You don\'t have permmission to do that!')
+    elif isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send('You\'re missing an argument. Check the command and ensure that all arguments are correct.')
+    elif str(error).startswith('Member "'):
+        MemberNotInGuild = discord.Embed (description=(':x: The member was not found.'), color=ctx.author.color)
+        await ctx.send(embed=MemberNotInGuild)
+    elif isinstance(error, commands.BadArgument):
+        await ctx.send('One or more of your arguments didn\'t make sense. Make sure your arguments are valid, then try again.')
+    elif isinstance(error, discord.Forbidden):
+        await ctx.send('I don\'t have permission to do that! Make sure I have the correct permissions, then try again.')
+    elif isinstance(error, commands.CommandOnCooldown):
+        await ctx.send(f'This command is on cooldown! Try again in {round(error.retry_after, 2)}s!')
+    else:
+        print (error)
+        embed = discord.Embed (title='Oh noes! We ran into an issue!', color=ctx.author.color)
+        embed.add_field(name='Error log:', value=f'```{error}```')
+        await ctx.send (embed=embed)
+        # All other Errors not returned come here. And we can just print the default TraceBack.
+        print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)
+        traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
 @bot.event
 async def on_message(message):
-  if len(message.mentions)>2:
-    await message.delete()
-    await message.channel.send(f'{message.author.mention}, Don\'t mass ping!')
-  else:
-    await bot.process_commands(message)
+    if len(message.mentions)>2:
+        await message.delete()
+        await message.channel.send(f'{message.author.mention}, Don\'t mass ping!')
+    else:
+        await bot.process_commands(message)
 
 #when the bot is ready
 @bot.event
@@ -67,166 +75,166 @@ async def on_ready():
 #change the playing status
 @tasks.loop(seconds=10)
 async def change_status():
-       await bot.change_presence(activity=discord.Game(next(status)))
+    await bot.change_presence(activity=discord.Game(next(status)))
  
 @bot.command()
 async def tonedetector(ctx, *, paragraph):
-  await ctx.send('**This command is in progress. Report bugs with this command with `/reportbug`.**')
-  await ctx.send('Please enter your sentence to begin tone detection.')
-  
-  def check(message : discord.Message) -> bool:
-      return message.author == ctx.author
-  try:
-     notlist = await bot.wait_for('message', timeout = 60, check=check)
-  except asyncio.TimeoutError: 
-      await ctx.send("You took too long to respond!")            
-  else:     
-    if notlist=='stats':
-      await ctx.send('Loading stats:')
-      await asyncio.sleep(2)
-      with open('tonedetectionrating.txt', 'rb') as input_file:
-        ratings=pickle.load(input_file)
-        await ctx.send(f'Average rating:\n{ratings}')
-    else:
-      spacelist=[]
-      commalist=[]
-      periodlist=[]
-      firstquote=[]
-      secondquote=[]
-      doublequote=[]
-      doublequote2=[]
-      done=[]
-      spacelist=notlist.split(' ')
-      for i in spacelist:
-        if i.endswith(','):
-          i = i[:-1]
-          commalist.append(i)
+    await ctx.send('**This command is in progress. Report bugs with this command with `/reportbug`.**')
+    await ctx.send('Please enter your sentence to begin tone detection.')
+    
+    def check(message : discord.Message) -> bool:
+        return message.author == ctx.author
+    try:
+        notlist = await bot.wait_for('message', timeout = 60, check=check)
+    except asyncio.TimeoutError: 
+        await ctx.send("You took too long to respond!")            
+    else:     
+        if notlist=='stats':
+            await ctx.send('Loading stats:')
+            await asyncio.sleep(2)
+            with open('tonedetectionrating.txt', 'rb') as input_file:
+                ratings=pickle.load(input_file)
+                await ctx.send(f'Average rating:\n{ratings}')
         else:
-          commalist.append(i)
-      for i in commalist:
-        if i.endswith('.'):
-          i = i[:-1]
-          periodlist.append(i)
-        else:
-          periodlist.append(i)
-      for i in periodlist:
-        x=i.strip()
-        y=x.lower()
-        if i.startswith('\''):
-          i = i[1:]
-          secondquote.append(i)
-        else: 
-          secondquote.append(i)
-      for i in firstquote:
-        if i.endswith('\''):
-          i = i[:-1]
-          doublequote.append(i)
-        else:
-          doublequote.append(i)
-      for i in secondquote:
-        if i.startswith('"'):
-          i=i[1:]
-          doublequote2.append(i)
-        else:
-          doublequote2.append(i)
-      for i in doublequote:
-        if i.endswith('"'):
-          i=i[:-1]
-          doublequote2.append(i)
-        else:
-          doublequote2.append(i)
-      for i in doublequote2:
-        i=i.strip()
-        i=i.lower()
-        if i.startswith('"'):
-          i = i[1:]
-          done.append(i)
-        else:
-          done.append(i)
-        
-      await ctx.send('The information has been indexed!')
-      await asyncio.sleep(2)
-      await ctx.send('Commencing processing...')
-      happy=['happy',]
-      angry=['hate']
-      passionate=['love',]
-      happy_count=0
-      angry_count=0
-      passionate_count=0
-      for i in done:
-        if i in happy:
-          happy_count=happy_count+1
-        if i in angry:
-          angry_count=angry_count+1
-        if i in passionate:
-          passionate_count=passionate_count+1
-      await ctx.send('Processing done!')
-      await ctx.send(f'Your counts:\nHappy: {happy_count}\nAngry: {angry_count}\nPassionate: {passionate_count}')      
-      await ctx.send('Please input your rating, on a scale of 1 to 10.')
-      def check1(message : discord.Message) -> bool:
-          return message.author == ctx.author
-      try:
-          ratings1 = await bot.wait_for('message', timeout = 60, check=check1)
-      except asyncio.TimeoutError: 
-          await ctx.send("You took too long to respond!")            
-      else:     
-        with open('tonedetectionrating.txt', 'rb') as input_file:
-          ratings2=pickle.load(input_file)
-        ratings=(ratings1+ratings2)/2
-        with open('tonedetectionrating.txt', 'wb') as out_file:
-          pickle.dump(ratings, out_file)
+            spacelist=[]
+            commalist=[]
+            periodlist=[]
+            firstquote=[]
+            secondquote=[]
+            doublequote=[]
+            doublequote2=[]
+            done=[]
+            spacelist=notlist.split(' ')
+            for i in spacelist:
+                if i.endswith(','):
+                    i = i[:-1]
+                    commalist.append(i)
+                else:
+                    commalist.append(i)
+            for i in commalist:
+                if i.endswith('.'):
+                    i = i[:-1]
+                    periodlist.append(i)
+                else:
+                    periodlist.append(i)
+            for i in periodlist:
+                x=i.strip()
+                y=x.lower()
+                if i.startswith('\''):
+                    i = i[1:]
+                    secondquote.append(i)
+                else: 
+                    secondquote.append(i)
+            for i in firstquote:
+              if i.endswith('\''):
+                i = i[:-1]
+                doublequote.append(i)
+              else:
+                doublequote.append(i)
+            for i in secondquote:
+              if i.startswith('"'):
+                i=i[1:]
+                doublequote2.append(i)
+              else:
+                doublequote2.append(i)
+            for i in doublequote:
+              if i.endswith('"'):
+                i=i[:-1]
+                doublequote2.append(i)
+              else:
+                doublequote2.append(i)
+            for i in doublequote2:
+              i=i.strip()
+              i=i.lower()
+              if i.startswith('"'):
+                i = i[1:]
+                done.append(i)
+              else:
+                done.append(i)
+              
+            await ctx.send('The information has been indexed!')
+            await asyncio.sleep(2)
+            await ctx.send('Commencing processing...')
+            happy=['happy',]
+            angry=['hate']
+            passionate=['love',]
+            happy_count=0
+            angry_count=0
+            passionate_count=0
+            for i in done:
+              if i in happy:
+                happy_count=happy_count+1
+              if i in angry:
+                angry_count=angry_count+1
+              if i in passionate:
+                passionate_count=passionate_count+1
+            await ctx.send('Processing done!')
+            await ctx.send(f'Your counts:\nHappy: {happy_count}\nAngry: {angry_count}\nPassionate: {passionate_count}')      
+            await ctx.send('Please input your rating, on a scale of 1 to 10.')
+            def check1(message : discord.Message) -> bool:
+                return message.author == ctx.author
+            try:
+                ratings1 = await bot.wait_for('message', timeout = 60, check=check1)
+            except asyncio.TimeoutError: 
+                await ctx.send("You took too long to respond!")            
+            else:     
+              with open('tonedetectionrating.txt', 'rb') as input_file:
+                ratings2=pickle.load(input_file)
+              ratings=(ratings1+ratings2)/2
+              with open('tonedetectionrating.txt', 'wb') as out_file:
+                pickle.dump(ratings, out_file)
 
 #help command
+@commands.cooldown(1, 3, BucketType.user)
 @bot.command(ignore_extra=True)
 async def help(ctx, info=None):
-  if ctx.prefix == '/':
     if info == None:
-      embed = discord.Embed(title="AltBot1 Help and Documentation", description="Categories. Do /help [category] to get more info.\
-      \nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
-      embed.add_field(name='Fun', value='Some fun commands for you to use!')
-      embed.add_field(name='Meta', value='Bot-related and user-related commands. Includes /whois, /about, and /bugreport.')
-      embed.add_field(name='Cleverbot', value='I\'m a very clever bot! Use these commands to bring me to my full capabilities!')
-      embed.add_field(name='Moderation', value='These commands empower the moderation team. Rest assured, I won\'t do what the user can\'t.')
-      embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} {embed_footer}', icon_url=ctx.author.avatar_url)
-      await ctx.send (embed=embed, delete_after=60)
+        embed = discord.Embed(title="AltBot1 Help and Documentation", description="Categories. Do /help [category] to get more info.\
+        \nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
+        embed.add_field(name='Fun', value='Some fun commands for you to use!')
+        embed.add_field(name='Meta', value='Bot-related and user-related commands. Includes /whois, /about, and /bugreport.')
+        embed.add_field(name='Cleverbot', value='I\'m a very clever bot! Use these commands to bring me to my full capabilities!')
+        embed.add_field(name='Moderation', value='These commands empower the moderation team. Rest assured, I won\'t do what the user can\'t.')
+        embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} {embed_footer}', icon_url=ctx.author.avatar_url)
+        await ctx.send (embed=embed, delete_after=60)
     elif info.lower()=='fun':
-      embed = discord.Embed(title="AltBot1 Help and Documentation", description="Here are some fun commands for you to use!\
-      \nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
-      embed.add_field(name="/8ball (question)", value="Ask the magic 8ball a question!")
-      embed.add_field(name='/slap [person]', value='Slap someone.')
-      embed.add_field(name='/hug [person]', value='Hug someone.')
-      embed.add_field(name='/fight [person]', value='Fight someone.')
-      embed.add_field(name='/rockpaperscissors [person] **BETA**', value='Challenge someone to a rock paper scissors challenge! \
-      (Must have DMs open) **WARNING: Command is in beta and may not work as intended. Use /bugreport to report bugs.**')
-      embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} {embed_footer}', icon_url=ctx.author.avatar_url)
-      await ctx.send (embed=embed, delete_after=60)
+        embed = discord.Embed(title="AltBot1 Help and Documentation", description="Here are some fun commands for you to use!\
+        \nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
+        embed.add_field(name="/8ball (question)", value="Ask the magic 8ball a question!")
+        embed.add_field(name='/slap [person]', value='Slap someone.')
+        embed.add_field(name='/hug [person]', value='Hug someone.')
+        embed.add_field(name='/fight [person]', value='Fight someone.')
+        embed.add_field(name='/rockpaperscissors [person] **BETA**', value='Challenge someone to a rock paper scissors challenge! \
+        (Must have DMs open) **WARNING: Command is in beta and may not work as intended. Use /bugreport to report bugs.**')
+        embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} {embed_footer}', icon_url=ctx.author.avatar_url)
+        await ctx.send (embed=embed, delete_after=60)
     elif info.lower()=='meta':
-      embed = discord.Embed(title="AltBot1 Help and Documentation", description="Meta commands. Concerns more of the geeky side of the userbase.\
-      \nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
-      embed.add_field(name='/about', value='Get information about the bot!')
-      embed.add_field(name="/ping", value="Check the ping of the bot to the Discord API.")    
-      embed.add_field(name='/whois (person)', value='Get info on a member in the server.')
-      embed.add_field(name= '/membercount', value='Get the amount of members in the server.')
-      embed.add_field(name='/bugreport (description)', value='Report a bug!')    
-      embed.add_field(name='~~/suggest (suggestion)~~', value='**Command is currently unavailable. **~~Suggest something for the bot!~~')
-      embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} {embed_footer}', icon_url=ctx.author.avatar_url)
-      await ctx.send (embed=embed, delete_after=60)
+        embed = discord.Embed(title="AltBot1 Help and Documentation", description="Meta commands. Concerns more of the geeky side of the userbase.\
+        \nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
+        embed.add_field(name='/about', value='Get information about the bot!')
+        embed.add_field(name="/ping", value="Check the ping of the bot to the Discord API.")    
+        embed.add_field(name='/whois (person)', value='Get info on a member in the server.')
+        embed.add_field(name= '/membercount', value='Get the amount of members in the server.')
+        embed.add_field(name='/bugreport (description)', value='Report a bug!')    
+        embed.add_field(name='~~/suggest (suggestion)~~', value='**Command is currently unavailable. **~~Suggest something for the bot!~~')
+        embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} {embed_footer}', icon_url=ctx.author.avatar_url)
+        await ctx.send (embed=embed, delete_after=60)
     elif info.lower()=='cleverbot':
-      embed = discord.Embed(title="AltBot1 Help and Documentation", description="Meta commands. Concerns more of the geeky side of the userbase.\
-      \nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
-      embed.add_field(name='/tonedetector **BETA**', value='Detects the tone of your writing. \
-**WARNING: Command is in beta and may not work as intended. Use /bugreport to report bugs.**')
-      embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} {embed_footer}', icon_url=ctx.author.avatar_url)
-      await ctx.send (embed=embed, delete_after=60) 
+        embed = discord.Embed(title="AltBot1 Help and Documentation", description="Meta commands. Concerns more of the geeky side of the userbase.\
+        \nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
+        embed.add_field(name='/tonedetector **BETA**', value='Detects the tone of your writing. \
+    **WARNING: Command is in beta and may not work as intended. Use /bugreport to report bugs.**')
+        embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} {embed_footer}', icon_url=ctx.author.avatar_url)
+        await ctx.send (embed=embed, delete_after=60) 
     elif info.lower()=='mod' or info.lower()=='moderation':
-      embed = discord.Embed(title="AltBot1 Help and Documentation", description="Moderation commands.\nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
-      embed.add_field(name='/purge (no. of messages)', value='Purge messages. Number of messages defaults to 5. Requires manage messages permission.')
-      embed.add_field(name="/kick [member] (reason)", value="Kick a member. Reason defaults to no reason. Requires kick members permission.")
-      embed.add_field(name="/ban [member/user id] (reason)", value="Permanently ban a member. Reason defaults to no reason. Requires ban members permission.")
-      embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} {embed_footer}', icon_url=ctx.author.avatar_url)
-      await ctx.send (embed=embed, delete_after=60)
-  else:
-    await ctx.send('That\'s not a valid field!')
+        embed = discord.Embed(title="AltBot1 Help and Documentation", description="Moderation commands.\nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
+        embed.add_field(name='/purge (no. of messages)', value='Purge messages. Number of messages defaults to 5. Requires manage messages permission.')
+        embed.add_field(name="/kick [member] (reason)", value="Kick a member. Reason defaults to no reason. Requires kick members permission.")
+        embed.add_field(name="/ban [member/user id] (reason)", value="Permanently ban a member. Reason defaults to no reason. Requires ban members permission.")
+        embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} {embed_footer}', icon_url=ctx.author.avatar_url)
+        await ctx.send (embed=embed, delete_after=60)
+    else:
+        await ctx.send('That\'s not a valid field!')
 
 #ping command
 @bot.command()
@@ -632,4 +640,4 @@ async def rockpaperscissors(ctx, member: discord.Member):
   finally: 
     pass
 
-bot.run(token)
+bot.run(token())
