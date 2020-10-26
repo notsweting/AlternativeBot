@@ -4,7 +4,6 @@ Repository for @AlternativeBot#3969 on Discord.
 Invite link for the bot soon.
 
 The bot can be found on discord with the following links:
-https://discord.gg/SUzSuTa
 https://discord.gg/33utps9
 https://discord.gg/dpy
 
