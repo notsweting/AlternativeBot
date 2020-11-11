@@ -13,7 +13,6 @@ bot.remove_command('help')
 bot_version = 'Version 0.1.9 [BETA]'
 bot_invite = 'https://discord.gg/33utPs9'
 embed_footer = f'| Support: {bot_invite}'
-NotInGuild = 'You aren\'t in a guild at the moment. Try again in a guild.'
 #b is rememberance day, a regular, c halloween
 statuschoice = 'a'
 regularstatus = cycle(['/help is the way to go!', 'Use /about to learn more!', bot_version, bot_invite])
@@ -38,16 +37,14 @@ async def on_command_error(ctx, error):
         await ctx.send ('You don\'t have permmission to do that!')
     elif isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('You\'re missing an argument. Check the command and ensure that all arguments are present.')
-    elif str(error).startswith('Member "'):
-        MemberNotInGuild = discord.Embed (description=(':x: The member was not found.'), color=ctx.author.color)
-        await ctx.send(embed=MemberNotInGuild)
     elif isinstance(error, commands.BadArgument):
         await ctx.send('One or more of your arguments didn\'t make sense. Make sure your arguments are valid, then try again.')
     elif isinstance(error, discord.Forbidden):
         await ctx.send('I don\'t have permission to do that! Make sure I have the correct permissions, then try again.')
+    elif isinstance(error, commands.CommandOnCooldown):
+        await ctx.send(error)
     else:
-        print (error)
-        await ctx.send (f'Hm. Didn\'t work. Check the command and make sure all conditions are met. **Error:** *{error}*')
+        print(error)
 
 @bot.event
 async def on_message(message):
@@ -240,8 +237,8 @@ async def whois(ctx, *, member: discord.Member = None):
         embed.add_field(name='Status:', value=member.status)
         await ctx.send(embed=embed)
     else:
-        await ctx.send(NotInGuild) 
-       
+        await ctx.send('You aren\'t in a guild at the moment. Try again in a guild.')       
+
 @bot.command()
 async def invite(ctx):
     await ctx.send ('The goods are on their way.', delete_after=3)
@@ -262,16 +259,6 @@ async def invite(ctx):
 # Don't Mention It!
 #safe_everyone = discord.utils.escape_mentions(guild.me.mention)
  
-#clear command
-@commands.has_permissions(manage_messages=True)
-@bot.command()
-async def purge(ctx, amount : int=5, member : discord.Member=None):
-    embed = discord.Embed (title='**A purge has been run!**', color=ctx.author.color, timestamp=ctx.message.created_at)
-    embed.set_footer(text=f'AltBot1 {bot_version}')
-    embed.add_field(name='Purged messages:', value=amount)
-    embed.add_field(name='Purged by:', value=ctx.author.mention)
-    await ctx.channel.purge(limit=amount+1)
-    await ctx.send(embed=embed)
 
 @bot.command()
 async def acceptbug(ctx, userid, bug_number, *, description):
@@ -327,73 +314,7 @@ async def bugreport(ctx, *, description=None):
             await ctx.send(embed=embed)
             await user.send(embed=embed)
 
-@commands.has_permissions(kick_members=True)   
-@bot.command()
-async def kick(ctx, member : discord.Member, *, reason='no reason'):
-    embed = discord.Embed (title='You\'ve been kicked!', color=member.color, timestamp=ctx.message.created_at)
-    embed.set_footer(text=f'AltBot1 {bot_version}')
-    embed.add_field(name='You were kicked by:', value=ctx.author.mention)
-    embed.add_field(name='Reason:', value=reason)
-    try:
-        msg = await member.send(embed=embed)
-    except:            
-        await ctx.send('I couldn\'t DM the selected member with details about their kick.')
-        try:
-            await ctx.guild.kick(member, reason=reason)
-        except discord.Forbidden:
-            await ctx.send('I couldn\'t kick the selected member.')
-        else:
-            await ctx.send(f'Kicked {member.mention} for {reason}. They could not be messaged about their kick.')
-    else:
-        try:
-            await ctx.guild.kick(member, reason=reason)
-        except discord.Forbidden:
-            await ctx.send('I couldn\'t kick the selected member.')
-            await msg.delete()
-        else:
-            await ctx.send(f'Successfully kicked {member.mention} for {reason}. They have also been DMed about their kick.')
 
-@commands.has_permissions(ban_members=True)   
-@bot.command()
-async def ban(ctx, member : discord.User, *, reason = None):
-    embed = discord.Embed (title='You\'ve been permanently banned!', color=member.color, timestamp=ctx.message.created_at)
-    embed.set_footer(text=f'AltBot1 {bot_version}')
-    embed.add_field(name='You were banned by:', value=ctx.author.mention)
-    embed.add_field(name='Reason:', value=reason)
-    try:
-        msg = await member.send(embed=embed)
-    except:            
-        await ctx.send('I couldn\'t DM the selected member with details about their ban.')
-        try:
-            await ctx.guild.ban(member, reason=reason)
-        except discord.Forbidden:
-            await ctx.send('I couldn\'t ban the selected member.')
-        else:
-            await ctx.send(f'Banned {member.mention} for {reason}. They could not be messaged about their ban.')
-    else:
-        try:
-            await ctx.guild.ban(member, reason=reason)
-        except discord.Forbidden:
-            await ctx.send('I couldn\'t ban the selected member.')
-            await msg.delete()
-        else:
-            await ctx.send(f'Successfully banned {member.mention} for {reason}. They have also been DMed about their ban.')
-
-@commands.has_permissions(ban_members=True)   
-@bot.command()
-async def unban(ctx, member : discord.User, *, reason='No reason'):
-    await ctx.guild.unban(member)
-    try:
-        embed = discord.Embed (title='You\'ve been unbanned!', color=member.color, timestamp=ctx.message.created_at)
-        embed.set_footer(text=f'AltBot1 {bot_version}')
-        embed.add_field(name='You were unbanned by:', value=ctx.author.mention)
-        embed.add_field(name='Reason:', value=reason)
-        await member.send(embed=embed)
-    except discord.Forbidden:
-        await ctx.send(f'{member.mention}, unbanned. I could not message them about their unban.')
-    else:
-        await ctx.send(f'{member.mention}, successfully unbanned.')
-  
 @bot.command() 
 async def membercount(ctx):
       await ctx.send(f'{ctx.guild.name} currently has {ctx.guild.member_count} members!')
@@ -456,42 +377,6 @@ async def coinflip (ctx):
     await asyncio.sleep(3)
     await ctx.channel.purge(limit=1)
     await ctx.send(f"{random.choice(responses)}")
-
-#warn command
-@commands.has_permissions(manage_roles=True)
-@bot.command()
-async def warn (ctx, member: discord.Member, warnlevel, *, reason = 'no reason'):
-    if ctx.guild != None:  
-        warn1 = discord.utils.get(ctx.guild.roles, name=warnlevel)
-        await member.add_roles(warn1, reason=reason)
-    else:
-        await ctx.send(NotInGuild)
-
-@bot.command()
-async def leave(ctx):
-    if ctx.guild!= None:
-      confirmation_no = str(random.randint(1000, 9999))
-      await ctx.send(f"Are you sure you want to leave? Send `{confirmation_no}` to confirm. You have 60 seconds.")
-
-      def check(message : discord.Message) -> bool:
-          return message.author == ctx.author and message.content == confirmation_no
-
-      try:
-          message = await bot.wait_for('message', timeout = 60, check = check)
-      except asyncio.TimeoutError: 
-            await ctx.send("You took too long to respond!")            
-      else:
-          await ctx.author.send(f'I\'m sorry you had to leave! We hope you had a great time at {ctx.guild.name}')
-          try:
-                await ctx.guild.kick(ctx.author, reason='User used /leave')
-          except discord.Forbidden:
-                await ctx.send('There\'s an issue with my permissions. Make sure I have the right permissions, then try again.')
-          else:
-                pass
-      finally: 
-          pass
-    else:
-        await ctx.send(NotInGuild)
 
 @bot.command()
 async def suggest(ctx, *, suggestion = None):
@@ -583,4 +468,8 @@ async def rockpaperscissors(ctx, member: discord.Member):
     finally: 
         pass
 
+load_list = ['moderation',]
+
+for i in load_list:
+    bot.load_extension(f'cogs.{i}')
 bot.run(token)
