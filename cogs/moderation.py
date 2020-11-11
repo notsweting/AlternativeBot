@@ -9,11 +9,15 @@ bot_version = 'Version 0.1.9 [BETA]'
 class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+    
+    def setup():
+        bot.add_cog(Moderation(bot))
+
 
     #clear command
     @commands.has_permissions(manage_messages=True)
     @commands.command()
-    async def purge(self, ctx, amount : int=5, member : discord.Member=None):
+    async def purge(self, ctx, amount : int=5):
         embed = discord.Embed (title='**A purge has been run!**', color=ctx.author.color, timestamp=ctx.message.created_at)
         embed.set_footer(text=f'AltBot1 {bot_version}')
         embed.add_field(name='Purged messages:', value=amount)

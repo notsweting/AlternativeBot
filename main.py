@@ -472,4 +472,5 @@ load_list = ['moderation',]
 
 for i in load_list:
     bot.load_extension(f'cogs.{i}')
+    
 bot.run(token)
