@@ -3,9 +3,6 @@ import asyncio
 from discord.ext import commands, tasks
 from discord.ext.commands.cooldowns import BucketType
 
-bot_version = 'Version 0.1.9 [BETA]'
-
-
 class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -16,9 +13,9 @@ class Moderation(commands.Cog):
     @commands.command()
     async def purge(self, ctx, amount : int=5):
         embed = discord.Embed (title='**A purge has been run!**', color=ctx.author.color, timestamp=ctx.message.created_at)
-        embed.set_footer(text=f'AltBot1 {bot_version}')
         embed.add_field(name='Purged messages:', value=amount)
         embed.add_field(name='Purged by:', value=ctx.author.mention)
+        embed.set_footer(text='Support: https://discord.gg/33utPs9', icon_url=ctx.author.avatar_url)
         await ctx.channel.purge(limit=amount+1)
         await ctx.send(embed=embed)
 
@@ -27,9 +24,9 @@ class Moderation(commands.Cog):
     async def kick(self, ctx, member : discord.Member, *, reason='no reason'):
         if ctx.guild != None:
             embed = discord.Embed (title=f'You\'ve been kicked from {ctx.guild.name}!', color=member.color, timestamp=ctx.message.created_at)
-            embed.set_footer(text=f'AltBot1 {bot_version}')
             embed.add_field(name='You were kicked by:', value=ctx.author.mention)
             embed.add_field(name='Reason:', value=reason)
+            embed.set_footer(text='Support: https://discord.gg/33utPs9')
             try:
                 msg = await member.send(embed=embed)
             except:            
@@ -56,9 +53,9 @@ class Moderation(commands.Cog):
     async def ban(self, ctx, member : discord.User, *, reason = None):
         if ctx.guild != None:
             embed = discord.Embed (title=f'You\'ve been permanently banned from {ctx.guild.name}!', color=member.color, timestamp=ctx.message.created_at)
-            embed.set_footer(text=f'AltBot1 {bot_version}')
             embed.add_field(name='You were banned by:', value=ctx.author.mention)
             embed.add_field(name='Reason:', value=reason)
+            embed.set_footer(text='Support: https://discord.gg/33utPs9')
             try:
                 msg = await member.send(embed=embed)
             except:            
@@ -87,9 +84,9 @@ class Moderation(commands.Cog):
             await ctx.guild.unban(member)
             try:
                 embed = discord.Embed (title=f'You\'ve been unbanned from {ctx.guild.name}!', color=member.color, timestamp=ctx.message.created_at)
-                embed.set_footer(text=f'AltBot1 {bot_version}')
                 embed.add_field(name='You were unbanned by:', value=ctx.author.mention)
                 embed.add_field(name='Reason:', value=reason)
+                embed.set_footer(text='Support: https://discord.gg/33utPs9')
                 await member.send(embed=embed)
             except discord.Forbidden:
                 await ctx.send(f'{member.mention}, unbanned. I could not message them about their unban.')
