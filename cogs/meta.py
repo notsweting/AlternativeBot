@@ -107,9 +107,9 @@ class Meta(commands.Cog):
     @commands.command()
     async def about(self, ctx):
         embed = discord.Embed(title="About the bot", colour=ctx.author.color)
-        embed.add_field(name='Developer', value = "ThisIsanAlt#0117")
+        embed.add_field(name='Developer', value = "ThisIsanAlt#3043")
         embed.add_field(name='Server invite', value = 'https://discord.gg/33utPs9')
-        embed.add_field(name='Programming Language and library', value="discord.py version 1.3.0")
+        embed.add_field(name='Programming Language and library', value="Python 3.8.5, discord.py version 1.5.0")
         embed.set_footer(text=f'Requested by {ctx.author} | Support: https://discord.gg/33utPs9', icon_url=ctx.author.avatar_url)
     
         await ctx.send (embed=embed)

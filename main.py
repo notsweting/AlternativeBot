@@ -2,11 +2,7 @@ import discord
 import asyncio
 from discord.ext import commands, tasks
 from discord.ext.commands.cooldowns import BucketType
-import random
 from itertools import cycle
-import time
-import pickle
-import json
 
 bot = commands.Bot(command_prefix = commands.when_mentioned_or('/', '@'), case_insensitive=True)
 bot.remove_command('help')
@@ -16,13 +12,10 @@ statuschoice = 'a'
 regularstatus = cycle(['/help is the way to go!', 'Use /about to learn more!'])
 statusremember = cycle(['Lest we forget', 'Lest we forget', 'Lest we forget'])
 statushalloween = cycle(['/help is the way to go!', 'Use /about to learn more!', 'Happy Halloween!', 'Happy Halloween!', 'Happy Halloween!'])
-dev = cycle(['UNDER TESTING. UNSTABLE.', 'UNSTABLE.', bot_version])
 if statuschoice == 'a':
     status = regularstatus
 elif statuschoice == 'b':
     status = statusremember
-elif statuschoice == 'd':
-    status = dev
 else:
     status = statushalloween
 
@@ -108,18 +101,32 @@ async def help(ctx, info=None):
         embed.add_field(name= '/membercount', value='Get the amount of members in the server.')
         embed.add_field(name='/bugreport (description)', value='Report a bug!')    
         embed.add_field(name='~~/suggest (suggestion)~~', value='**Command is currently unavailable. **~~Suggest something for the bot!~~')
-        embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} | Support: https://discord.gg/33utPs9'', icon_url=ctx.author.avatar_url)
+        embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} | Support: https://discord.gg/33utPs9', icon_url=ctx.author.avatar_url)
         await ctx.send (embed=embed, delete_after=60)
     elif info.lower()=='mod' or info.lower()=='moderation':
         embed = discord.Embed(title="AlternativeBot Help and Documentation", description="Moderation commands.\nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
         embed.add_field(name='/purge (no. of messages)', value='Purge messages. Number of messages defaults to 5. Requires manage messages permission.')
         embed.add_field(name="/kick [member] (reason)", value="Kick a member. Reason defaults to no reason. Requires kick members permission.")
         embed.add_field(name="/ban [member/user id] (reason)", value="Permanently ban a member. Reason defaults to no reason. Requires ban members permission.")
-        embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} | Support: https://discord.gg/33utPs9'', icon_url=ctx.author.avatar_url)
+        embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} | Support: https://discord.gg/33utPs9', icon_url=ctx.author.avatar_url)
         await ctx.send (embed=embed, delete_after=60)
     else:
         await ctx.send('That\'s not a valid field!')
 
+load_list = ['moderation', 'fun', 'meta',]
+
+@bot.command()
+async def reload(ctx):
+    if await bot.is_owner(ctx.author):
+        for i in load_list:
+            try:
+                bot.reload_extension(f'cogs.{i}')
+            except:
+                await ctx.send(f'Something went wrong while load in cog {i} :x:')
+            else:
+                await ctx.send(f'Cog {i} was successfully loaded in :white_check_mark:')
+    else:
+        await ctx.send('You can\'t do that!')
 
 #unused = discord.utils.find(lambda role: not role.members, guild.roles)
 # for attributes, it's easier with
@@ -135,11 +142,7 @@ async def help(ctx, info=None):
 # Don't Mention It!
 #safe_everyone = discord.utils.escape_mentions(guild.me.mention)
 
-
-
-load_list = ['moderation', 'fun', 'meta',]
-
 for i in load_list:
     bot.load_extension(f'cogs.{i}')
     
-bot.run(token)
+bot.run('NTI3NjgyMTk2NzQ0Njk5OTI0.XCRAVw.Y3zOkPKgI0AUStWRzxZ1LJowhiA')

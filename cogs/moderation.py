@@ -2,11 +2,13 @@ import discord
 import asyncio
 from discord.ext import commands, tasks
 from discord.ext.commands.cooldowns import BucketType
+import datetime
+import time
+import sqlite3
 
 class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
 
     #clear command
     @commands.has_permissions(manage_messages=True)
@@ -94,16 +96,50 @@ class Moderation(commands.Cog):
                 await ctx.send(f'{member.mention}, successfully unbanned.')
         else:
             await ctx.send('You aren\'t in a guild at the moment. Try again in a guild.')
-
-    #warn command
+    
     @commands.has_permissions(manage_roles=True)
     @commands.command()
-    async def warn (self, ctx, member: discord.Member, warnlevel, *, reason = 'no reason'):
+    async def mute(self, ctx, member: discord.Member, *, reason = 'no reason'):
         if ctx.guild != None:  
-            warn1 = discord.utils.get(ctx.guild.roles, name=warnlevel)
-            await member.add_roles(warn1, reason=reason)
+            role = discord.utils.get(ctx.guild.roles, name='Muted')
+            await member.add_roles(role, reason=f'Muted by {ctx.author}, reason: {reason}')
+            await ctx.send(f':thumbsup: Muted {member}')
         else:
             await ctx.send('You aren\'t in a guild at the moment. Try again in a guild.')
-
+    
+    @commands.has_permissions(manage_roles=True)
+    @commands.command()
+    async def unmute(self, ctx, member: discord.Member):
+        if ctx.guild != None:  
+            role = discord.utils.get(ctx.guild.roles, name='Muted')
+            await member.remove_roles(role, reason=f'Unmute by {ctx.author}')
+            await ctx.send(f':thumbsup: Unmuted {member}')
+        else:
+            await ctx.send('You aren\'t in a guild at the moment. Try again in a guild.')
+    
+    @commands.has_permissions(manage_channels=True)
+    @commands.command()
+    async def lock(self, ctx):
+        for i in ctx.guild.roles:
+                if i.permissions.manage_messages == True:
+                    pass
+                elif i in ctx.channel.overwrites:
+                    await ctx.channel.set_permissions(i, send_messages=False)
+                else:
+                    pass
+        await ctx.send(':thumbsup: Locked channel.')
+    
+    @commands.has_permissions(manage_channels=True)
+    @commands.command()
+    async def unlock(self, ctx):
+        for i in ctx.guild.roles:
+                if i.name == 'Muted':
+                    pass
+                elif i in ctx.channel.overwrites:
+                    await ctx.channel.set_permissions(i, send_messages=True)
+                else:
+                    pass
+        await ctx.send(':thumbsup: Unlocked channel.')
+    
 def setup(bot):
     bot.add_cog(Moderation(bot))
