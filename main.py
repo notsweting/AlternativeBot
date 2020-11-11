@@ -198,10 +198,11 @@ async def dev_update(ctx):
     await ctx.send(f''' > ***AltBot1 Version {bot_version}***
 > 
 > **New stuff:**
-> - 
+> - Restructured code. Internal update only.
 > 
 > **In progress:**
-> - yay nothing. please suggest things in #suggestions
+> - Channel and server-wide lock command
+> - Mute command
 ''')
 
 #whois command

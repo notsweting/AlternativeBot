@@ -9,9 +9,6 @@ bot_version = 'Version 0.1.9 [BETA]'
 class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-    
-    def setup():
-        bot.add_cog(Moderation(bot))
 
 
     #clear command
@@ -110,3 +107,6 @@ class Moderation(commands.Cog):
             await member.add_roles(warn1, reason=reason)
         else:
             await ctx.send('You aren\'t in a guild at the moment. Try again in a guild.')
+
+def setup(bot):
+    bot.add_cog(Moderation(bot))
