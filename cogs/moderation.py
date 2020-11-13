@@ -117,6 +117,16 @@ class Moderation(commands.Cog):
         else:
             await ctx.send('You aren\'t in a guild at the moment. Try again in a guild.')
     
+    @commands.has_permissions(manage_roles=True)
+    @commands.command()
+    async def bindmuterole(self, ctx, role: discord.Role = None):
+        pass
+    
+    @commands.has_permissions(manage_roles=True)
+    @commands.command()
+    async def unbindmuterole(self, ctx, role : discord.Role):
+        pass
+    
     @commands.has_permissions(manage_channels=True)
     @commands.command()
     async def lock(self, ctx):

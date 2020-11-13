@@ -7,7 +7,65 @@ import random
 class Meta(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-            
+    
+     
+    @commands.command()
+    async def dev_update(self, ctx):
+        await ctx.channel.purge(limit = 1)
+        await ctx.send(f''' > **AlternativeBot Version 0.1.12**
+    > 
+    > **New stuff:**
+    > - `/rockpaperscissors`is finally complete! Challenge all of your friends and **defeat them all.**
+    > - `/mute` is done! Use `/bindmuterole` to automatically create a `Muted` role, or pass in your own role to use your own!
+    > 
+    > **In progress:**
+    > - Channel and server-wide lock command
+    ''')
+
+    #help command
+    @commands.cooldown(1, 3, BucketType.user)
+    @commands.command(ignore_extra=True)
+    async def help(self, ctx, info=None):
+        if info == None:
+            embed = discord.Embed(title="AlternativeBot Help and Documentation", description="Categories. Do /help [category] to get more info.\
+            \nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
+            embed.add_field(name='Fun', value='Some fun commands for you to use!')
+            embed.add_field(name='Meta', value='Bot-related and user-related commands. Includes /whois, /about, and /bugreport.')
+            embed.add_field(name='Moderation', value='These commands empower the moderation team. Rest assured, I won\'t do what the user can\'t.')
+            embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} | Support: https://discord.gg/33utPs9', icon_url=ctx.author.avatar_url)
+            await ctx.send (embed=embed, delete_after=60)
+        elif info.lower()=='fun':
+            embed = discord.Embed(title="AlternativeBot Help and Documentation", description="Here are some fun commands for you to use!\
+            \nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
+            embed.add_field(name="/8ball (question)", value="Ask the magic 8ball a question!")
+            embed.add_field(name='/slap [person]', value='Slap someone.')
+            embed.add_field(name='/hug [person]', value='Hug someone.')
+            embed.add_field(name='/fight [person]', value='Fight someone.')
+            embed.add_field(name='/rockpaperscissors [person] **BETA**', value='Challenge someone to a rock paper scissors challenge! \
+            (Must have DMs open) **WARNING: Command is in beta and may not work as intended. Use /bugreport to report bugs.**')
+            embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} | Support: https://discord.gg/33utPs9', icon_url=ctx.author.avatar_url)
+            await ctx.send (embed=embed, delete_after=60)
+        elif info.lower()=='meta':
+            embed = discord.Embed(title="AlternativeBot Help and Documentation", description="Meta commands. Concerns more of the geeky side of the userbase.\
+            \nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
+            embed.add_field(name='/about', value='Get information about the bot!')
+            embed.add_field(name="/ping", value="Check the ping of the bot to the Discord API.")    
+            embed.add_field(name='/whois (person)', value='Get info on a member in the server.')
+            embed.add_field(name= '/membercount', value='Get the amount of members in the server.')
+            embed.add_field(name='/bugreport (description)', value='Report a bug!')    
+            embed.add_field(name='~~/suggest (suggestion)~~', value='**Command is currently unavailable. **~~Suggest something for the bot!~~')
+            embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} | Support: https://discord.gg/33utPs9', icon_url=ctx.author.avatar_url)
+            await ctx.send (embed=embed, delete_after=60)
+        elif info.lower()=='mod' or info.lower()=='moderation':
+            embed = discord.Embed(title="AlternativeBot Help and Documentation", description="Moderation commands.\nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
+            embed.add_field(name='/purge (no. of messages)', value='Purge messages. Number of messages defaults to 5. Requires manage messages permission.')
+            embed.add_field(name="/kick [member] (reason)", value="Kick a member. Reason defaults to no reason. Requires kick members permission.")
+            embed.add_field(name="/ban [member/user id] (reason)", value="Permanently ban a member. Reason defaults to no reason. Requires ban members permission.")
+            embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} | Support: https://discord.gg/33utPs9', icon_url=ctx.author.avatar_url)
+            await ctx.send (embed=embed, delete_after=60)
+        else:
+            await ctx.send('That\'s not a valid field!')
+        
     @commands.command()
     async def acceptbug(self, ctx, userid, bug_number, *, description):
         if ctx.author.id == 447119084627427351:
