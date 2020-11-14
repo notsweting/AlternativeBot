@@ -88,4 +88,4 @@ async def reload(ctx):
 for i in load_list:
     bot.load_extension(f'cogs.{i}')
     
-bot.run('NTI3NjgyMTk2NzQ0Njk5OTI0.XCRAVw.Y3zOkPKgI0AUStWRzxZ1LJowhiA')
+bot.run(token)
