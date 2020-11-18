@@ -83,7 +83,7 @@ class Fun(commands.Cog):
         def check2(message : discord.Message) -> bool:
             return message.author == ctx.author and message.content in responses
         try:
-            message = await self.bot.wait_for('message', timeout = 60, check = check)
+            await self.bot.wait_for('message', timeout = 60, check = check)
         except asyncio.TimeoutError: 
             await ctx.send(f"{member} took too long to respond!")            
         else:

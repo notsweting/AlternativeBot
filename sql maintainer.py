@@ -5,6 +5,5 @@ cursor = connection.cursor()
 
 cursor.execute('CREATE TABLE MUTEDROLES(ServerID, RoleID)')
 
-
 connection.commit()
 connection.close()

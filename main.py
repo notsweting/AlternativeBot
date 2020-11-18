@@ -7,7 +7,7 @@ from itertools import cycle
 bot = commands.Bot(command_prefix = commands.when_mentioned_or('/', '@'), case_insensitive=True)
 bot.remove_command('help')
 bot_version = 'Version 0.1.12 [BETA]'
-#b is rememberance day, a regular, c halloween
+#a regular, b remembrance day, c halloween
 statuschoice = 'a'
 regularstatus = cycle(['/help is the way to go!', 'Use /about to learn more!'])
 statusremember = cycle(['Lest we forget', 'Lest we forget', 'Lest we forget'])
@@ -18,6 +18,13 @@ elif statuschoice == 'b':
     status = statusremember
 else:
     status = statushalloween
+
+#when the bot is ready
+@bot.event
+async def on_ready():
+    change_status.start()
+    print(f'We have logged in as {bot.user}')
+
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -44,12 +51,6 @@ async def on_message(message):
         await message.channel.send(f'{message.author.mention}, Don\'t mass ping!')
     else:
         await bot.process_commands(message)
-
-#when the bot is ready
-@bot.event
-async def on_ready():
-    change_status.start()
-    print(f'We have logged in as {bot.user}')
 
 #change the playing status
 @tasks.loop(seconds=10)
@@ -88,4 +89,4 @@ async def reload(ctx):
 for i in load_list:
     bot.load_extension(f'cogs.{i}')
     
-bot.run(token)
+bot.run('NTI3NjgyMTk2NzQ0Njk5OTI0.XCRAVw.Vg11h-bZsNjDCBOI4gbHP_3Fp94')
