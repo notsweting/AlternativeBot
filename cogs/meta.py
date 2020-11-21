@@ -53,7 +53,7 @@ class Meta(commands.Cog):
             embed.add_field(name='/whois (person)', value='Get info on a member in the server.')
             embed.add_field(name= '/membercount', value='Get the amount of members in the server.')
             embed.add_field(name='/bugreport (description)', value='Report a bug!')    
-            embed.add_field(name='~~/suggest (suggestion)~~', value='**Command is currently unavailable. **~~Suggest something for the bot!~~')
+            embed.add_field(name='~~/suggest (suggestion)~~', value='**Command is currently unavailable.** ~~Suggest something for the bot!~~')
             embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} | Support: https://discord.gg/33utPs9', icon_url=ctx.author.avatar_url)
             await ctx.send (embed=embed, delete_after=60)
         elif info.lower()=='mod' or info.lower()=='moderation':
@@ -89,7 +89,7 @@ class Meta(commands.Cog):
 
     @commands.command()
     async def bugreport(self, ctx, *, description=None):
-        bug_number = random.randint(0, 500)
+        bug_number = random.randint(0,500)
         user = self.bot.get_user(447119084627427351)
         if description != None:
             await ctx.send(f'Your bug has been reported!')
@@ -120,7 +120,7 @@ class Meta(commands.Cog):
                 await ctx.send(embed=embed)
                 await user.send(embed=embed)
 
-
+    @commands.guild_only()
     @commands.command() 
     async def membercount(self, ctx):
         await ctx.send(f'{ctx.guild.name} currently has {ctx.guild.member_count} members!')
@@ -173,39 +173,35 @@ class Meta(commands.Cog):
         await ctx.send (embed=embed)
 
     #whois command
+    @commands.guild_only()
     @commands.command()
     async def whois(self, ctx, *, member: discord.Member = None):
         member = ctx.author if not member else member
-        if ctx.guild != None:
-            roles = [role for role in member.roles]
-            embed = discord.Embed (color=member.color, timestamp=ctx.message.created_at)
-            embed.set_author(name=f'User info on {member}')
-            embed.set_thumbnail(url=member.avatar_url)
-            embed.set_footer(text=f'Requested by {ctx.author} | Support: https://discord.gg/33utPs9', icon_url=ctx.author.avatar_url)
-            embed.add_field(name='Discord ID:', value=member.id)
-            if member.display_name == member.name:
-                value1 = 'None'
-            else:
-                value1 = member.display_name
-            embed.add_field(name='Nickname:', value=value1)
-            embed.add_field(name='Created at:', value=member.created_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
-            embed.add_field(name='Joined at:', value=member.joined_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
-            embed.add_field(name=f'Roles: ({len(roles)})', value=" ".join([role.mention for role in roles]))
-            embed.add_field(name='Top Role:', value=member.top_role.mention)
-
-            if member.bot:
-                bot_status = 'Yes'
-            else:
-                bot_status = 'No'
-            embed.add_field(name='Am I a bot:', value=bot_status)
-
-            if member.premium_since != None:
-                embed.add_field(name='Boosting since:', value=member.premium_since.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
-
-            embed.add_field(name='Status:', value=member.status)
-            await ctx.send(embed=embed)
+        roles = [role for role in member.roles]
+        embed = discord.Embed (color=member.color, timestamp=ctx.message.created_at)
+        embed.set_author(name=f'User info on {member}')
+        embed.set_thumbnail(url=member.avatar_url)
+        embed.set_footer(text=f'Requested by {ctx.author} | Support: https://discord.gg/33utPs9', icon_url=ctx.author.avatar_url)
+        embed.add_field(name='Discord ID:', value=member.id)
+        if member.display_name == member.name:
+            value1 = 'None'
         else:
-            await ctx.send('You aren\'t in a guild at the moment. Try again in a guild.')       
+            value1 = member.display_name
+        embed.add_field(name='Nickname:', value=value1)
+        embed.add_field(name='Created at:', value=member.created_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
+        embed.add_field(name='Joined at:', value=member.joined_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
+        embed.add_field(name=f'Roles: ({len(roles)})', value=" ".join([role.mention for role in roles]))
+        embed.add_field(name='Top Role:', value=member.top_role.mention)
+
+        if member.bot:
+            bot_status = 'Yes'
+        else:
+            bot_status = 'No'
+        embed.add_field(name='Am I a bot:', value=bot_status)
+
+        if member.premium_since != None:
+            embed.add_field(name='Boosting since:', value=member.premium_since.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
+        await ctx.send(embed=embed)
 
     @commands.command()
     async def invite(self, ctx):

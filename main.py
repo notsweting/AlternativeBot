@@ -3,10 +3,15 @@ import asyncio
 from discord.ext import commands, tasks
 from discord.ext.commands.cooldowns import BucketType
 from itertools import cycle
+import sys
+import traceback
+import os
 
 bot = commands.Bot(command_prefix = commands.when_mentioned_or('/', '@'), case_insensitive=True)
 bot.remove_command('help')
 bot_version = 'Version 0.1.12 [BETA]'
+intents = discord.Intents.default()
+intents.members = True
 #a regular, b remembrance day, c halloween
 statuschoice = 'a'
 regularstatus = cycle(['/help is the way to go!', 'Use /about to learn more!'])
@@ -41,8 +46,14 @@ async def on_command_error(ctx, error):
         await ctx.send('I don\'t have permission to do that! Make sure I have the correct permissions, then try again.')
     elif isinstance(error, commands.CommandOnCooldown):
         await ctx.send(error)
+    elif isinstance(error, commands.NoPrivateMessage):
+        await ctx.send('You\'re not in a server! This command is server-only.')
     else:
-        print(error)
+        print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)
+        traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+        embed = discord.Embed(title='Oh noes!', description = f'Something went wrong: \n ```{error}``` \
+            \n The devs have been notified. If this continues, please file a bug report using `/bugreport`.')
+        await ctx.send(embed=embed)
 
 @bot.event
 async def on_message(message):
@@ -89,4 +100,4 @@ async def reload(ctx):
 for i in load_list:
     bot.load_extension(f'cogs.{i}')
     
-bot.run('NTI3NjgyMTk2NzQ0Njk5OTI0.XCRAVw.Vg11h-bZsNjDCBOI4gbHP_3Fp94')
+bot.run(os.environ.get('token'))
