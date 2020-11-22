@@ -179,8 +179,7 @@ class Moderation(commands.Cog):
                         role = await ctx.guild.create_role(name = 'Muted', reason = f'{ctx.author} (ID:{ctx.author.id}) ran /bindmuterole')
                         for i in ctx.guild.channels:
                             await i.set_permissions(role, send_messages=False)
-                        await cursor.execute(f'DELETE FROM MUTEDROLES WHERE ServerID = ?', (ctx.guild.id))
-                        await cursor.execute(f'INSERT INTO MUTEDROLES(ServerID, RoleID) VALUES (?, ?)', (ctx.guild.id, role.id))
+                        await cursor.execute('UPDATE MUTEDROLES SET RoleID = ? WHERE ServerID = ?', (role.id, ctx.guild.id))
                         await ctx.send(f':thumbsup: Bound {role.mention} to {ctx.guild.name} as Muted role.')
                     else:
                         await ctx.send('Process aborted.')
@@ -189,10 +188,9 @@ class Moderation(commands.Cog):
                 role = await ctx.guild.create_role(name = 'Muted', reason = f'{ctx.author} (ID:{ctx.author.id}) ran /bindmuterole')
                 for i in ctx.guild.channels:
                     await i.set_permissions(role, send_messages=False)
-                await cursor.execute(f'DELETE FROM MUTEDROLES WHERE ServerID = ?', (ctx.guild.id))
-                await cursor.execute(f'INSERT INTO MUTEDROLES(ServerID, RoleID) VALUES ("{ctx.guild.id}", "{role.id}")')
+                await cursor.execute('UPDATE MUTEDROLES SET RoleID = ? WHERE ServerID = ?', (role.id, ctx.guild.id))
                 await ctx.send(f':thumbsup: Bound {role.mention} to {ctx.guild.name} as Muted role.')
-                
+
         else:
             await cursor.execute(f'SELECT RoleID FROM MUTEDROLES WHERE ServerID=?', (ctx.guild.id))
             role = await cursor.fetchone()
@@ -222,7 +220,7 @@ class Moderation(commands.Cog):
             try:
                 message = await self.bot.wait_for('message', timeout = 60, check = check)
             except asyncio.TimeoutError: 
-                await ctx.send('You took too long to respond! Aborting process.')            
+                await ctx.send('You took too long to respond! Aborting process.')
             else:
                 if message.content.lower() == 'yes':
                     await cursor.execute(f'DELETE FROM MUTEDROLES WHERE ServerID = ?', (ctx.guild.id))
