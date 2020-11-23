@@ -6,8 +6,7 @@ import random
 
 class Meta(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
-    
+        self.bot = bot    
      
     @commands.command()
     async def dev_update(self, ctx):
@@ -208,6 +207,6 @@ class Meta(commands.Cog):
         await ctx.send ('The goods are on their way.', delete_after=3)
         await asyncio.sleep(3)
         await ctx.send('https://discord.gg/33utPs9')
-
+    
 def setup(bot):
     bot.add_cog(Meta(bot))

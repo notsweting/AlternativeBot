@@ -2,9 +2,7 @@ import discord
 import asyncio
 from discord.ext import commands, tasks
 from discord.ext.commands.cooldowns import BucketType
-import datetime
-import time
-import aiosqlite
+import sqlite3
 
 '''
 Table definitions:
@@ -103,10 +101,10 @@ class Moderation(commands.Cog):
     @commands.has_permissions(manage_roles=True)
     @commands.command()
     async def mute(self, ctx, member: discord.Member, *, reason = 'no reason'):
-        connection = await aiosqlite.connect('AltBotDataBase.db')
-        cursor = await connection.cursor()
-        await cursor.execute(f'SELECT RoleID FROM MUTEDROLES WHERE ServerID=?', (ctx.guild.id))
-        role = await cursor.fetchone()
+        connection = sqlite3.connect('AltBotDataBase.db')
+        cursor = connection.cursor()
+        cursor.execute(f'SELECT RoleID FROM MUTEDROLES WHERE ServerID=?', (ctx.guild.id,))
+        role = cursor.fetchone()
         roleID = role[0]
 
         if roleID == None:
@@ -122,16 +120,16 @@ class Moderation(commands.Cog):
                     await ctx.send(f':thumbsup: Muted {member}')                            
             else:
                 await ctx.send('Hmmmmm, it seems like your Muted role has been deleted! Please run `/bindmuterole` to bind a new one!')
-        await connection.close()
+        connection.close()
 
     @commands.guild_only()
     @commands.has_permissions(manage_roles=True)
     @commands.command()
     async def unmute(self, ctx, member: discord.Member):
-        connection = await aiosqlite.connect('AltBotDataBase.db')
-        cursor = await connection.cursor()
-        await cursor.execute(f'SELECT RoleID FROM MUTEDROLES WHERE ServerID=?', (ctx.guild.id))
-        role = await cursor.fetchone()
+        connection = sqlite3.connect('AltBotDataBase.db')
+        cursor = connection.cursor()
+        cursor.execute(f'SELECT RoleID FROM MUTEDROLES WHERE ServerID=?', (ctx.guild.id,))
+        role = cursor.fetchone()
         roleID = role[0]
 
         if roleID == None:
@@ -140,30 +138,30 @@ class Moderation(commands.Cog):
             role = discord.utils.get(ctx.guild.roles, id=int(roleID))
             if role != None:
                 try:
-                    await member.add_roles(role, reason=f'Unmuted by {ctx.author}')
+                    await member.remove_roles(role, reason=f'Unmuted by {ctx.author}')
                 except discord.Forbidden:
                     await ctx.send('Hm. Something went wrong. Please try again and ensure that I have the `Manage Roles` permission.')
                 else:
                     await ctx.send(f':thumbsup: Unmuted {member}')                            
             else:
                 await ctx.send('Hmmmmm, it seems like your Muted role has been deleted! Please run `/bindmuterole` to bind a new one!')            
-        await connection.close()
+        connection.close()
 
     @commands.guild_only()
     @commands.has_permissions(manage_roles=True)
     @commands.command()
     async def bindmuterole(self, ctx, role: discord.Role = None):
-        connection = await aiosqlite.connect('AltBotDataBase.db')
-        cursor = await connection.cursor()
+        connection = sqlite3.connect('AltBotDataBase.db')
+        cursor = connection.cursor()
         if role == None:
-            await cursor.execute(f'SELECT RoleID FROM MUTEDROLES WHERE ServerID=?', (ctx.guild.id))
-            role = await cursor.fetchone()
+            cursor.execute(f'SELECT RoleID FROM MUTEDROLES WHERE ServerID=?', (ctx.guild.id,))
+            role = cursor.fetchone()
             roleID = role[0]
             if role == None:
                 role = await ctx.guild.create_role(name = 'Muted', reason = f'{ctx.author} (ID:{ctx.author.id}) ran /bindmuterole')
                 for i in ctx.guild.channels:
                     await i.set_permissions(role, send_messages=False)
-                await cursor.execute(f'INSERT INTO MUTEDROLES(ServerID, RoleID) VALUES (?, ?)', (ctx.guild.id, role.id))
+                cursor.execute(f'INSERT INTO MUTEDROLES(ServerID, RoleID) VALUES (?, ?)', (ctx.guild.id, role.id))
                 await ctx.send(f':thumbsup: Bound {role.mention} to {ctx.guild.name} as Muted role.')
             elif discord.utils.get(ctx.guild.roles, id=int(roleID)) != None:
                 await ctx.send('A Muted role has already been bound to this server! Are you sure you want to continue? `yes/no`')
@@ -179,7 +177,7 @@ class Moderation(commands.Cog):
                         role = await ctx.guild.create_role(name = 'Muted', reason = f'{ctx.author} (ID:{ctx.author.id}) ran /bindmuterole')
                         for i in ctx.guild.channels:
                             await i.set_permissions(role, send_messages=False)
-                        await cursor.execute('UPDATE MUTEDROLES SET RoleID = ? WHERE ServerID = ?', (role.id, ctx.guild.id))
+                        cursor.execute('UPDATE MUTEDROLES SET RoleID = ? WHERE ServerID = ?', (role.id, ctx.guild.id))
                         await ctx.send(f':thumbsup: Bound {role.mention} to {ctx.guild.name} as Muted role.')
                     else:
                         await ctx.send('Process aborted.')
@@ -188,26 +186,25 @@ class Moderation(commands.Cog):
                 role = await ctx.guild.create_role(name = 'Muted', reason = f'{ctx.author} (ID:{ctx.author.id}) ran /bindmuterole')
                 for i in ctx.guild.channels:
                     await i.set_permissions(role, send_messages=False)
-                await cursor.execute('UPDATE MUTEDROLES SET RoleID = ? WHERE ServerID = ?', (role.id, ctx.guild.id))
+                cursor.execute('UPDATE MUTEDROLES SET RoleID = ? WHERE ServerID = ?', (role.id, ctx.guild.id))
                 await ctx.send(f':thumbsup: Bound {role.mention} to {ctx.guild.name} as Muted role.')
 
         else:
-            await cursor.execute(f'SELECT RoleID FROM MUTEDROLES WHERE ServerID=?', (ctx.guild.id))
-            role = await cursor.fetchone()
-            roleID = role[0]
-            if role == None:
-                await cursor.execute(f'INSERT INTO MUTEDROLES(ServerID, RoleID) VALUES (?, ?)', (ctx.guild.id, role.id))
+            cursor.execute(f'SELECT RoleID FROM MUTEDROLES WHERE ServerID=?', (ctx.guild.id,))
+            info = cursor.fetchone()
+            if info == None:
+                cursor.execute(f'INSERT INTO MUTEDROLES(ServerID, RoleID) VALUES (?, ?)', (ctx.guild.id, role.id))
                 await ctx.send(f':thumbsup: Bound {role.mention} to {ctx.guild.name} as Muted role.')
-        await connection.commit()
-        await connection.close()
+        connection.commit()
+        connection.close()
 
     @commands.guild_only()
     @commands.has_permissions(manage_roles=True)
     @commands.command()
     async def unbindmuterole(self, ctx):
-        connection = await aiosqlite.connect('AltBotDataBase.db')
-        cursor = await connection.cursor()
-        await cursor.execute(f'SELECT RoleID FROM MUTEDROLES WHERE ServerID=?', (ctx.guild.id))
+        connection = sqlite3.connect('AltBotDataBase.db')
+        cursor = connection.cursor()
+        cursor.execute(f'SELECT RoleID FROM MUTEDROLES WHERE ServerID=?', (ctx.guild.id,))
         role = await cursor.fetchone()
         roleID = role[0]
         if role == None:
@@ -223,15 +220,15 @@ class Moderation(commands.Cog):
                 await ctx.send('You took too long to respond! Aborting process.')
             else:
                 if message.content.lower() == 'yes':
-                    await cursor.execute(f'DELETE FROM MUTEDROLES WHERE ServerID = ?', (ctx.guild.id))
+                    cursor.execute(f'DELETE FROM MUTEDROLES WHERE ServerID = ?', (ctx.guild.id,))
                     await ctx.send(f':thumbsup: {role.mention} is no longer this server\'s muted role.')
                 else:
                     await ctx.send('Process aborted.')
         else:
             await ctx.send('A Muted role has already been bound to this server, but it was deleted. Aborting process.')
-            await cursor.execute(f'DELETE FROM MUTEDROLES WHERE ServerID=?', (ctx.guild.id))
-        await connection.commit()
-        await connection.close()
+            cursor.execute(f'DELETE FROM MUTEDROLES WHERE ServerID=?', (ctx.guild.id,))
+        connection.commit()
+        connection.close()
 
     @commands.guild_only()
     @commands.has_permissions(manage_channels=True)

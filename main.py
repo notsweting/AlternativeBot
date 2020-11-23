@@ -6,7 +6,9 @@ from itertools import cycle
 import sys
 import traceback
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 bot = commands.Bot(command_prefix = commands.when_mentioned_or('/', '@'), case_insensitive=True)
 bot.remove_command('help')
 bot_version = 'Version 0.1.12 [BETA]'
@@ -68,7 +70,7 @@ async def on_message(message):
 async def change_status():
     await bot.change_presence(activity=discord.Game(next(status)))
 
-load_list = ['moderation', 'fun', 'meta',]
+load_list = ['moderation', 'fun', 'meta', 'logging', 'admin']
 
 @bot.command()
 async def reload(ctx):
@@ -100,4 +102,4 @@ async def reload(ctx):
 for i in load_list:
     bot.load_extension(f'cogs.{i}')
     
-bot.run(os.environ.get('token'))
+bot.run(os.getenv('TOKEN'))

@@ -1,8 +1,8 @@
 import discord
 import asyncio
-from discord.ext import commands, tasks
+from discord.ext import commands, tasks, menus
 from discord.ext.commands.cooldowns import BucketType
-import aiosqlite
+import sqlite3
 
 '''
 Table definitions:
@@ -15,42 +15,68 @@ TABLE LOGGING, columns (ServerID, LoggingToggle, LoggingChannelID, \
     OnGuildEditToggle, OnGuildRoleCreateDeleteToggle, OnGuildRoleUpdateToggle, \
     OnGuildMemberBanUnbanToggle, OnGuildMemberKickToggle, OnGuildInviteCreateDeleteToggle)
 '''
+from discord.ext import menus
+
+class MyMenu(menus.Menu):
+    menupage = 1
+    async def send_initial_message(self, ctx, channel):
+        embed = discord.Embed (title=f'Logging Toggles for {ctx.guild.name}', description='Use the reactions to navigate through the available options!')
+        embed.add_field(name='', value='')
+        return await channel.send(f'Hello {ctx.author}')
+
+    @menus.button('\N{THUMBS UP SIGN}')
+    async def on_thumbs_up(self, payload):
+        await self.message.edit(content=f'Thanks {self.ctx.author}!')
+
+    @menus.button('\N{THUMBS DOWN SIGN}')
+    async def on_thumbs_down(self, payload):
+        await self.message.edit(content=f"That's not nice {self.ctx.author}...")
+
+    @menus.button('\N{BLACK SQUARE FOR STOP}\ufe0f')
+    async def on_stop(self, payload):
+        self.stop()
 
 class Logging(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
     @commands.guild_only()
-    @commands.has_permissions(manage_server=True)
+    @commands.has_permissions(manage_guild=True)
     @commands.command()
-    async def togglelogging(self, ctx, choice = None):
-        connection = await aiosqlite.connect('AltBotDataBase.db')
-        cursor = await connection.cursor()
-        await cursor.execute('SELECT * FROM LOGGING WHERE ServerID = ?', (ctx.guild.id))
-        info = await cursor.fetchone()
+    async def togglelogging(self, ctx):
+        connection = sqlite3.connect('AltBotDataBase.db')
+        cursor = connection.cursor()
+        cursor.execute('SELECT * FROM LOGGING WHERE ServerID = ?', (ctx.guild.id))
+        info = cursor.fetchone()
+        LoggingChannelID = info[2]
         if info == None:
-            await ctx.send('You don\'t have a logging channel set up yet! Please run `bindloggingchannel` to set up a logging channel!')
+            await ctx.send('You don\'t have a logging channel set up yet! Please run `/bindloggingchannel` to set up a logging channel!')
+        if LoggingChannelID == None:
+            await ctx.send('You don\'t have a logging channel set up yet! Please run `/bindloggingchannel to set up a logging channel!')
+        else:
+            m = MyMenu()
+            await m.start(ctx)
+        connection.close()        
                
     
     @commands.guild_only()
     @commands.has_permissions(manage_channels=True)
     @commands.command()
-    async def bindloggingchannel(self, ctx, channel : discord.Channel):
-        connection = await aiosqlite.connect('AltBotDataBase.db')
-        cursor = await connection.cursor()
-        await cursor.execute('SELECT LoggingChannelID FROM LOGGING WHERE ServerID = ?', (ctx.guild.id))
+    async def bindloggingchannel(self, ctx, channel : discord.TextChannel):
+        connection = sqlite3.connect('AltBotDataBase.db')
+        cursor = connection.cursor()
+        cursor.execute('SELECT LoggingChannelID FROM LOGGING WHERE ServerID = ?', (ctx.guild.id,))
         info = cursor.fetchone()
-        loggingchannelID = info[0]
-        if loggingchannelID == None:
+        if info == None or info[0] == None:
             await ctx.send(f'Binding {channel.mention} as this server\'s logging channel...')
-            await cursor.execute('SELECT * FROM LOGGING WHERE ServerID = ?', (ctx.guild.id))
+            cursor.execute('SELECT * FROM LOGGING WHERE ServerID = ?', (ctx.guild.id,))
             if cursor.fetchall() == None:
-                await cursor.execute('INSERT INTO LOGGING(ServerID, LoggingChannelID) VALUES (?, ?)', (ctx.guild.id, channel.id))
+                cursor.execute('INSERT INTO LOGGING(ServerID, LoggingChannelID) VALUES (?, ?)', (ctx.guild.id, channel.id))
                 await ctx.send(f':thumbsup: Bound {channel.mention} to {ctx.guild.name} as logging channel.')
             else:
-                await cursor.execute('UPDATE LOGGING SET LoggingChannelID = ? WHERE ServerID = ?', (channel.id, ctx.guild.id))
+                cursor.execute('UPDATE LOGGING SET LoggingChannelID = ? WHERE ServerID = ?', (channel.id, ctx.guild.id))
                 await ctx.send(f':thumbsup: Bound {channel.mention} to {ctx.guild.name} as logging channel.')
-        elif discord.utils.get(ctx.guild.channels, id=loggingchannelID) != None:
+        elif discord.utils.get(ctx.guild.channels, id=info[0]) != None:
                 await ctx.send('A logging channel has already been bound to this server! Are you sure you want to continue? `yes/no`')
                 def check(message : discord.Message) -> bool:
                     return message.author == ctx.author and message.channel == ctx.channel                
@@ -60,22 +86,22 @@ class Logging(commands.Cog):
                     await ctx.send('You took too long to respond! Aborting process.')            
                 else:
                     if message.content.lower() == 'yes':
-                        await cursor.execute('UPDATE LOGGING SET LoggingChannelID = ? WHERE ServerID = ?', (channel.id, ctx.guild.id))
+                        cursor.execute('UPDATE LOGGING SET LoggingChannelID = ? WHERE ServerID = ?', (channel.id, ctx.guild.id))
                         await ctx.send(f':thumbsup: Bound {channel.mention} to {ctx.guild.name} as logging channel.')
                     else:
                         await ctx.send('Process aborted.')
         else:
             await ctx.send('A logging channel has already been bound to this server, but it was deleted. Binding new logging channel.')
-            await cursor.execute('UPDATE LOGGING SET LoggingChannelID = ? WHERE ServerID = ?', (channel.id, ctx.guild.id))
+            cursor.execute('UPDATE LOGGING SET LoggingChannelID = ? WHERE ServerID = ?', (channel.id, ctx.guild.id))
             await ctx.send(f':thumbsup: Bound {channel.mention} to {ctx.guild.name} as logging channel.')
-                
+        connection.close()                
     
     @commands.Cog.listener()
     async def on_message_delete(self, message):
-        connection = await aiosqlite.connect('AltBotDataBase.db')
-        cursor = await connection.cursor()
-        await cursor.execute('SELECT * FROM LOGGING WHERE ServerID = ?', (message.guild.id))
-        info = await cursor.fetchone()
+        connection = sqlite3.connect('AltBotDataBase.db')
+        cursor = connection.cursor()
+        cursor.execute('SELECT * FROM LOGGING WHERE ServerID = ?', (message.guild.id,))
+        info = cursor.fetchone()
         if info == None:
             pass
         else:
@@ -89,6 +115,7 @@ class Logging(commands.Cog):
                     await channel.send(embed=embed)
                 except:
                     pass
+        connection.close()
 
 def setup(bot):
     bot.add_cog(Logging(bot))
