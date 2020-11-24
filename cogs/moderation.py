@@ -195,6 +195,28 @@ class Moderation(commands.Cog):
             if info == None:
                 cursor.execute(f'INSERT INTO MUTEDROLES(ServerID, RoleID) VALUES (?, ?)', (ctx.guild.id, role.id))
                 await ctx.send(f':thumbsup: Bound {role.mention} to {ctx.guild.name} as Muted role.')
+            elif discord.utils.get(ctx.guild.roles, id=int(role.id)) != None:
+                await ctx.send('A Muted role has already been bound to this server! Are you sure you want to continue? `yes/no`')
+                def check(message : discord.Message) -> bool:
+                    return message.author == ctx.author and message.channel == ctx.channel
+                
+                try:
+                    message = await self.bot.wait_for('message', timeout = 60, check = check)
+                except asyncio.TimeoutError: 
+                    await ctx.send('You took too long to respond! Aborting process.')            
+                else:
+                    if message.content.lower() == 'yes':
+                        cursor.execute('UPDATE MUTEDROLES SET RoleID = ? WHERE ServerID = ?', (role.id, ctx.guild.id))
+                        await ctx.send(f':thumbsup: Bound {role.mention} to {ctx.guild.name} as Muted role.')
+                    else:
+                        await ctx.send('Process aborted.')
+            else:
+                await ctx.send('A Muted role has already been bound to this server, but it was deleted. Binding new Muted role.')
+                role = await ctx.guild.create_role(name = 'Muted', reason = f'{ctx.author} (ID:{ctx.author.id}) ran /bindmuterole')
+                for i in ctx.guild.channels:
+                    await i.set_permissions(role, send_messages=False)
+                cursor.execute('UPDATE MUTEDROLES SET RoleID = ? WHERE ServerID = ?', (role.id, ctx.guild.id))
+                await ctx.send(f':thumbsup: Bound {role.mention} to {ctx.guild.name} as Muted role.')
         connection.commit()
         connection.close()
 

@@ -69,3 +69,4 @@ class Admin(commands.Cog):
             await ctx.send('You can\'t do that!')
 def setup(bot):
     bot.add_cog(Admin(bot))
+    
