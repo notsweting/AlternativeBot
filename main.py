@@ -74,14 +74,18 @@ load_list = ['moderation', 'fun', 'meta', 'logging', 'admin']
 
 @bot.command()
 async def reload(ctx):
+    success = True
     if await bot.is_owner(ctx.author):
         for i in load_list:
             try:
                 bot.reload_extension(f'cogs.{i}')
             except:
                 await ctx.send(f'Something went wrong while load in cog {i} :x:')
+                success = False
             else:
                 await ctx.send(f'Cog {i} was successfully loaded in :white_check_mark:')
+        if success != False:
+            await ctx.send('All cogs reloaded successfully!')
     else:
         await ctx.send('You can\'t do that!')
 

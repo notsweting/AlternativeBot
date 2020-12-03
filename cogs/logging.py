@@ -26,98 +26,81 @@ class MyMenu(menus.Menu):
         info = cursor.fetchone()
         connection.close()
         listtoreturn = []
+        print(info)
         if info[1] == True:
             listtoreturn.append(':white_check_mark: Main logging toggle on. Disable with the :stop_button: reaction.')
         else:
             listtoreturn.append(':x: Main logging toggle off. Enable with the :play_pause: reaction.')
-        if info[2] == True:
+        if info[3] == True:
             listtoreturn.append(':white_check_mark: Enabled. Toggle with the :one: reaction.')
         else:
             listtoreturn.append(':x: Disabled. Toggle with the :one: reaction.')
-        if info[3] == True:
+        if info[4] == True:
             listtoreturn.append(':white_check_mark: Enabled. Toggle with the :two: reaction.')
         else:
             listtoreturn.append(':x: Disabled. Toggle with the :two: reaction.')
-        if info[4] == True:
-            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :three: reaction.')
-        else:
-            listtoreturn.append(':x: Disabled. Toggle with the :three: reaction.')
         if info[5] == True:
             listtoreturn.append(':white_check_mark: Enabled. Toggle with the :three: reaction.')
         else:
             listtoreturn.append(':x: Disabled. Toggle with the :three: reaction.')
         if info[6] == True:
-            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :one: reaction.')
-        else:
-            listtoreturn.append(':x: Disabled. Toggle with the :one: reaction.')
-        if info[7] == True:
-            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :two: reaction.')
-        else:
-            listtoreturn.append(':x: Disabled. Toggle with the :two: reaction.')
-        if info[8] == True:
             listtoreturn.append(':white_check_mark: Enabled. Toggle with the :three: reaction.')
         else:
             listtoreturn.append(':x: Disabled. Toggle with the :three: reaction.')
+        if info[7] == True:
+            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :one: reaction.')
+        else:
+            listtoreturn.append(':x: Disabled. Toggle with the :one: reaction.')
+        if info[8] == True:
+            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :two: reaction.')
+        else:
+            listtoreturn.append(':x: Disabled. Toggle with the :two: reaction.')
         if info[9] == True:
             listtoreturn.append(':white_check_mark: Enabled. Toggle with the :three: reaction.')
         else:
             listtoreturn.append(':x: Disabled. Toggle with the :three: reaction.')
         if info[10] == True:
-            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :one: reaction.')
-        else:
-            listtoreturn.append(':x: Disabled. Toggle with the :one: reaction.')
-        if info[11] == True:
-            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :two: reaction.')
-        else:
-            listtoreturn.append(':x: Disabled. Toggle with the :two: reaction.')
-        if info[12] == True:
             listtoreturn.append(':white_check_mark: Enabled. Toggle with the :three: reaction.')
         else:
             listtoreturn.append(':x: Disabled. Toggle with the :three: reaction.')
+        if info[11] == True:
+            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :one: reaction.')
+        else:
+            listtoreturn.append(':x: Disabled. Toggle with the :one: reaction.')
+        if info[12] == True:
+            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :two: reaction.')
+        else:
+            listtoreturn.append(':x: Disabled. Toggle with the :two: reaction.')
         if info[13] == True:
             listtoreturn.append(':white_check_mark: Enabled. Toggle with the :three: reaction.')
         else:
             listtoreturn.append(':x: Disabled. Toggle with the :three: reaction.')
         if info[14] == True:
-            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :one: reaction.')
-        else:
-            listtoreturn.append(':x: Disabled. Toggle with the :one: reaction.')
-        if info[15] == True:
-            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :two: reaction.')
-        else:
-            listtoreturn.append(':x: Disabled. Toggle with the :two: reaction.')
-        if info[16] == True:
             listtoreturn.append(':white_check_mark: Enabled. Toggle with the :three: reaction.')
         else:
             listtoreturn.append(':x: Disabled. Toggle with the :three: reaction.')
+        if info[15] == True:
+            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :one: reaction.')
+        else:
+            listtoreturn.append(':x: Disabled. Toggle with the :one: reaction.')
+        if info[16] == True:
+            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :two: reaction.')
+        else:
+            listtoreturn.append(':x: Disabled. Toggle with the :two: reaction.')
         if info[17] == True:
             listtoreturn.append(':white_check_mark: Enabled. Toggle with the :three: reaction.')
         else:
             listtoreturn.append(':x: Disabled. Toggle with the :three: reaction.')
-        if info[18] == True:
-            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :one: reaction.')
-        else:
-            listtoreturn.append(':x: Disabled. Toggle with the :one: reaction.')
-        if info[19] == True:
-            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :two: reaction.')
-        else:
-            listtoreturn.append(':x: Disabled. Toggle with the :two: reaction.')
-        if info[20] == True:
-            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :three: reaction.')
-        else:
-            listtoreturn.append(':x: Disabled. Toggle with the :three: reaction.')
-        if info[21] == True:
-            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :three: reaction.')
-        else:
-            listtoreturn.append(':x: Disabled. Toggle with the :three: reaction.')
-        return tuple(listtoreturn)
+        tupletoreturn = tuple(listtoreturn)
+        return tupletoreturn
 
     async def send_initial_message(self, ctx, channel):
         self.menupage = 1
         self.guild_name = ctx.guild.name
         self.guild_id = ctx.guild.id
         self.embed = discord.Embed (title=f'Logging Toggles for {ctx.guild.name}', description='Use the reactions to navigate through the available options!')
-        info = self.return_values()
+        info = await self.return_values()
+        self.embed.add_field(name='Main logging toggle:', value = info[0])
         self.embed.add_field(name='On message delete toggle:', value = info[1])
         self.embed.add_field(name='On bulk message delete toggle:', value = info[2])
         return await channel.send(embed=self.embed)
@@ -132,13 +115,13 @@ class MyMenu(menus.Menu):
             info = info[0]
             if info == None or info == False: 
                 info = True
+                enabled = ':white_check_mark: Enabled. Use the :one: reaction to disable.'
             else:
                 info = False
+                enabled = ':x: Disabled. Use the :one: reaction to disable.'
             cursor.execute('UPDATE LOGGING SET OnMsgDeleteToggle = ? WHERE ServerID = ?', (info, payload.guild_id))
-            info = self.return_values()
-            self.embed.insert_field_at(0, name='On message delete toggle:', value=info[1])
-            self.embed.remove_field(1)
-            cursor.execute('UPDATE LOGGING SET OnMsgDeleteToggle = ? WHERE ServerID = ?', (info, payload.guild_id))
+            self.embed.insert_field_at(1, name='On message delete toggle:', value=enabled)
+            self.embed.remove_field(2)
             await self.message.edit(embed=self.embed)
             connection.commit()
 
@@ -152,12 +135,13 @@ class MyMenu(menus.Menu):
             info = info[0]
             if info == None or info == False: 
                 info = True
+                enabled = ':white_check_mark: Enabled. Use the :two: reaction to disable.'
             else:
                 info = False
-            info = self.return_values()
-            self.embed.insert_field_at(1, name='On bulk message delete toggle:', value=info[2])
-            self.embed.remove_field(2)
+                enabled = ':x: Disabled. Use the :two: reaction to disable.'
             cursor.execute('UPDATE LOGGING SET OnMsgDeleteToggle = ? WHERE ServerID = ?', (info, payload.guild_id))
+            self.embed.insert_field_at(2, name='On bulk message delete toggle:', value=enabled)
+            self.embed.remove_field(3)
             await self.message.edit(embed=self.embed)
             connection.commit()
 
