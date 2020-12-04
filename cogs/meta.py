@@ -204,9 +204,7 @@ class Meta(commands.Cog):
 
     @commands.command()
     async def invite(self, ctx):
-        await ctx.send ('The goods are on their way.', delete_after=3)
-        await asyncio.sleep(3)
-        await ctx.send('https://discord.gg/33utPs9')
+        await ctx.send ('Invite me using this invite link! ')
     
 def setup(bot):
     bot.add_cog(Meta(bot))

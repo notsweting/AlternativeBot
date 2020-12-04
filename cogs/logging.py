@@ -26,7 +26,6 @@ class MyMenu(menus.Menu):
         info = cursor.fetchone()
         connection.close()
         listtoreturn = []
-        print(info)
         if info[1] == True:
             listtoreturn.append(':white_check_mark: Main logging toggle on. Disable with the :stop_button: reaction.')
         else:
@@ -103,27 +102,72 @@ class MyMenu(menus.Menu):
         self.embed.add_field(name='Main logging toggle:', value = info[0])
         self.embed.add_field(name='On message delete toggle:', value = info[1])
         self.embed.add_field(name='On bulk message delete toggle:', value = info[2])
+        self.embed.add_field(name='On message edit toggle:', value = info[3])
+        self.embed.set_footer(text='Page 1/3: Support: https://discord.gg/33utPs9')
         return await channel.send(embed=self.embed)
 
+    @menus.button('\U000023ef\U0000fe0f')
+    async def maintoggle(self, payload):
+        connection = sqlite3.connect('AltBotDataBase.db')
+        cursor = connection.cursor()
+        cursor.execute('SELECT LoggingToggle FROM LOGGING WHERE ServerID = ?', (payload.guild_id,))
+        info = cursor.fetchone()
+        info = info[0]
+        if info == None or info == False: 
+            info = True
+            enabled = ':white_check_mark: Enabled. Toggle with the :play_pause: reaction.'
+        else:
+            info = False
+            enabled = ':x: Disabled. Toggle with the :play_pause: reaction.'
+        cursor.execute('UPDATE LOGGING SET LoggingToggle = ? WHERE ServerID = ?', (info, payload.guild_id))
+
+        self.embed.insert_field_at(0, name='Main logging toggle:', value=enabled)
+        self.embed.remove_field(1)
+        await self.message.edit(embed=self.embed)
+        connection.commit()
+        
     @menus.button('\U00000031\U0000fe0f\U000020e3')
     async def on_one(self, payload):
         connection = sqlite3.connect('AltBotDataBase.db')
         cursor = connection.cursor()
         if self.menupage == 1:
-            cursor.execute('SELECT OnBulkMsgDeleteToggle FROM LOGGING WHERE ServerID = ?', (payload.guild_id,))
+            cursor.execute('SELECT OnMsgDeleteToggle FROM LOGGING WHERE ServerID = ?', (payload.guild_id,))
             info = cursor.fetchone()
             info = info[0]
             if info == None or info == False: 
                 info = True
-                enabled = ':white_check_mark: Enabled. Use the :one: reaction to disable.'
+                enabled = ':white_check_mark: Enabled. Toggle with the :one: reaction.'
             else:
                 info = False
-                enabled = ':x: Disabled. Use the :one: reaction to disable.'
+                enabled = ':x: Disabled. Toggle with the :one: reaction.'
             cursor.execute('UPDATE LOGGING SET OnMsgDeleteToggle = ? WHERE ServerID = ?', (info, payload.guild_id))
+
             self.embed.insert_field_at(1, name='On message delete toggle:', value=enabled)
             self.embed.remove_field(2)
             await self.message.edit(embed=self.embed)
             connection.commit()
+        elif self.menupage == 2:
+            cursor.execute('SELECT OnReactionClearToggle FROM LOGGING WHERE ServerID = ?', (payload.guild_id,))
+            info = cursor.fetchone()
+            info = info[0]
+            if info == None or info == False: 
+                info = True
+                enabled = ':white_check_mark: Enabled. Toggle with the :one: reaction.'
+            else:
+                info = False
+                enabled = ':x: Disabled. Toggle with the :one: reaction.'
+            cursor.execute('UPDATE LOGGING SET OnReactionClearToggle = ? WHERE ServerID = ?', (info, payload.guild_id))
+
+            self.embed.insert_field_at(1, name='On reaction clear toggle:', value=enabled)
+            self.embed.remove_field(2)
+            await self.message.edit(embed=self.embed)
+            connection.commit()
+        elif self.menupage == 3:
+            pass
+        elif self.menupage == 4:
+            pass
+        else:
+            pass
 
     @menus.button('\U00000032\U0000fe0f\U000020e3')
     async def on_two(self, payload):
@@ -135,16 +179,117 @@ class MyMenu(menus.Menu):
             info = info[0]
             if info == None or info == False: 
                 info = True
-                enabled = ':white_check_mark: Enabled. Use the :two: reaction to disable.'
+                enabled = ':white_check_mark: Enabled. Toggle with the :two: reaction.'
             else:
                 info = False
-                enabled = ':x: Disabled. Use the :two: reaction to disable.'
-            cursor.execute('UPDATE LOGGING SET OnMsgDeleteToggle = ? WHERE ServerID = ?', (info, payload.guild_id))
+                enabled = ':x: Disabled. Toggle with the :two: reaction.'
+            cursor.execute('UPDATE LOGGING SET OnBulkMsgDeleteToggle = ? WHERE ServerID = ?', (info, payload.guild_id))
             self.embed.insert_field_at(2, name='On bulk message delete toggle:', value=enabled)
             self.embed.remove_field(3)
             await self.message.edit(embed=self.embed)
             connection.commit()
+        elif self.menupage == 2:
+            cursor.execute('SELECT OnChannelCreateDeleteToggle FROM LOGGING WHERE ServerID = ?', (payload.guild_id,))
+            info = cursor.fetchone()
+            info = info[0]
+            if info == None or info == False: 
+                info = True
+                enabled = ':white_check_mark: Enabled. Toggle with the :two: reaction.'
+            else:
+                info = False
+                enabled = ':x: Disabled. Toggle with the :two: reaction.'
+            cursor.execute('UPDATE LOGGING SET OnChannelCreateDeleteToggle = ? WHERE ServerID = ?', (info, payload.guild_id))
+            self.embed.insert_field_at(2, name='On channel create/delete toggle:', value=enabled)
+            self.embed.remove_field(3)
+            await self.message.edit(embed=self.embed)
+            connection.commit()
+        elif self.menupage == 3:
+            pass
+        elif self.menupage == 4:
+            pass
+        else:
+            pass
 
+    @menus.button('\U00000033\U0000fe0f\U000020e3')
+    async def on_three(self, payload):
+        connection = sqlite3.connect('AltBotDataBase.db')
+        cursor = connection.cursor()
+        if self.menupage == 1:
+            cursor.execute('SELECT OnMsgEditToggle FROM LOGGING WHERE ServerID = ?', (payload.guild_id,))
+            info = cursor.fetchone()
+            info = info[0]
+            if info == None or info == False: 
+                info = True
+                enabled = ':white_check_mark: Enabled. Toggle with the :two: reaction.'
+            else:
+                info = False
+                enabled = ':x: Disabled. Toggle with the :two: reaction.'
+            cursor.execute('UPDATE LOGGING SET OnMsgEditToggle = ? WHERE ServerID = ?', (info, payload.guild_id))
+            self.embed.insert_field_at(3, name='On message edit toggle:', value=enabled)
+            self.embed.remove_field(4)
+            await self.message.edit(embed=self.embed)
+            connection.commit()
+        elif self.menupage == 2:
+            cursor.execute('SELECT OnChannelEditToggle FROM LOGGING WHERE ServerID = ?', (payload.guild_id,))
+            info = cursor.fetchone()
+            info = info[0]
+            if info == None or info == False: 
+                info = True
+                enabled = ':white_check_mark: Enabled. Toggle with the :two: reaction.'
+            else:
+                info = False
+                enabled = ':x: Disabled. Toggle with the :two: reaction.'
+            cursor.execute('UPDATE LOGGING SET OnChannelEditToggle = ? WHERE ServerID = ?', (info, payload.guild_id))
+            self.embed.insert_field_at(3, name='On channel edit toggle:', value=enabled)
+            self.embed.remove_field(4)
+            await self.message.edit(embed=self.embed)
+            connection.commit()
+        elif self.menupage == 3:
+            cursor.execute('SELECT OnMemberEditToggle FROM LOGGING WHERE ServerID = ?', (payload.guild_id,))
+            info = cursor.fetchone()
+            info = info[0]
+            if info == None or info == False: 
+                info = True
+                enabled = ':white_check_mark: Enabled. Toggle with the :two: reaction.'
+            else:
+                info = False
+                enabled = ':x: Disabled. Toggle with the :two: reaction.'
+            cursor.execute('UPDATE LOGGING SET OnMemberEditToggle = ? WHERE ServerID = ?', (info, payload.guild_id))
+            self.embed.insert_field_at(3, name='On member edit toggle:', value=enabled)
+            self.embed.remove_field(4)
+            await self.message.edit(embed=self.embed)
+            connection.commit()
+        elif self.menupage == 4:
+            cursor.execute('SELECT OnGuildRoleUpdateToggle FROM LOGGING WHERE ServerID = ?', (payload.guild_id,))
+            info = cursor.fetchone()
+            info = info[0]
+            if info == None or info == False: 
+                info = True
+                enabled = ':white_check_mark: Enabled. Toggle with the :two: reaction.'
+            else:
+                info = False
+                enabled = ':x: Disabled. Toggle with the :two: reaction.'
+            cursor.execute('UPDATE LOGGING SET OnGuildRoleUpdateToggle = ? WHERE ServerID = ?', (info, payload.guild_id))
+            self.embed.insert_field_at(3, name='On role edit toggle:', value=enabled)
+            self.embed.remove_field(4)
+            await self.message.edit(embed=self.embed)
+            connection.commit()
+        else:
+            cursor.execute('SELECT OnGuildInviteCreateDeleteToggle FROM LOGGING WHERE ServerID = ?', (payload.guild_id,))
+            info = cursor.fetchone()
+            info = info[0]
+            if info == None or info == False: 
+                info = True
+                enabled = ':white_check_mark: Enabled. Toggle with the :two: reaction.'
+            else:
+                info = False
+                enabled = ':x: Disabled. Toggle with the :two: reaction.'
+            cursor.execute('UPDATE LOGGING SET OnGuildInviteCreateDeleteToggle = ? WHERE ServerID = ?', (info, payload.guild_id))
+            self.embed.insert_field_at(3, name='On invite create/delete toggle:', value=enabled)
+            self.embed.remove_field(4)
+            await self.message.edit(embed=self.embed)
+            connection.commit()
+    
 class Logging(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -208,7 +353,7 @@ class Logging(commands.Cog):
         if info == None:
             pass
         else:
-            if info[3] == None or info[3] == False:
+            if info[3] == None or info[3] == False or info[1] == None or info[1] == False:
                 pass
             else:
                 channel = discord.utils.get(message.guild.channels, id=info[2])
@@ -229,16 +374,32 @@ class Logging(commands.Cog):
         if info == None:
             pass
         else:
-            if info[4] == None or info[4] == False:
+            if info[4] == None or info[4] == False or info[1] == None or info[1] == False:
                 pass
             else:
                 channel = self.bot.get_channel(payload.channel_id)
-                try:
-                    embed = discord.Embed(title = f'Bulk message delete in #{channel.name}', description = 'A bulk message delete was run!', timestamp = time.time(), colour = 0xFF5353)
-                    embed.set_footer(text=f'Support: https://discord.gg/33utPs9', icon_url=self.bot.avatar_url)
-                    await channel.send(embed=embed)
-                except:
-                    pass
+                loggingchannel = self.bot.get_channel(info[2])
+                embed = discord.Embed(title = f'Bulk message delete in #{channel.name}', description = 'A bulk message delete was run!', colour = 0xFF5353)
+                embed.set_footer(text=f'Support: https://discord.gg/33utPs9', icon_url='https://cdn.discordapp.com/avatars/527682196744699924/f756a3c3af60b450514c27819dda8fcf.webp?size=1024')
+                await loggingchannel.send(embed=embed)
+
+    @commands.Cog.listener()
+    async def on_message_edit(self, before, after):
+        connection = sqlite3.connect('AltBotDataBase.db')
+        cursor = connection.cursor()
+        cursor.execute('SELECT * FROM LOGGING WHERE ServerID = ?', (before.guild.id,))
+        info = cursor.fetchone()
+        connection.close()
+        if info == None:
+            pass
+        else:
+            if info[5] == None or info[5] == False or info[5] == None or info[1] == False or before.content == after.content:
+                pass
+            else:
+                loggingchannel = self.bot.get_channel(info[2])
+                embed = discord.Embed(title = f'Message edited in {before.channel.name}', description = f'**Before:**\n{before.content}\n\n**After:**\n{after.content}', timestamp = after.created_at, colour = 0xFF5353)
+                embed.set_footer(text=f'Author: {message.author} Support: https://discord.gg/33utPs9', icon_url=before.author.avatar_url)
+                await loggingchannel.send(embed=embed)
 
 def setup(bot):
     bot.add_cog(Logging(bot))
