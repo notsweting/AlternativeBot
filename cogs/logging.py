@@ -27,7 +27,7 @@ class MyMenu(menus.Menu):
         connection.close()
         listtoreturn = []
         if info[1] == True:
-            listtoreturn.append(':white_check_mark: Main logging toggle on. Disable with the :stop_button: reaction.')
+            listtoreturn.append(':white_check_mark: Main logging toggle on. Disable with the :play_pause: reaction.')
         else:
             listtoreturn.append(':x: Main logging toggle off. Enable with the :play_pause: reaction.')
         if info[3] == True:
@@ -220,7 +220,7 @@ class MyMenu(menus.Menu):
             info = info[0]
             if info == None or info == False: 
                 info = True
-                enabled = ':white_check_mark: Enabled. Toggle with the :two: reaction.'
+                enabled = ':white_check_mark: Enabled. Toggle with the :three: reaction.'
             else:
                 info = False
                 enabled = ':x: Disabled. Toggle with the :two: reaction.'
@@ -235,7 +235,7 @@ class MyMenu(menus.Menu):
             info = info[0]
             if info == None or info == False: 
                 info = True
-                enabled = ':white_check_mark: Enabled. Toggle with the :two: reaction.'
+                enabled = ':white_check_mark: Enabled. Toggle with the :three: reaction.'
             else:
                 info = False
                 enabled = ':x: Disabled. Toggle with the :two: reaction.'
@@ -289,7 +289,12 @@ class MyMenu(menus.Menu):
             self.embed.remove_field(4)
             await self.message.edit(embed=self.embed)
             connection.commit()
-    
+
+    @menus.button('\U000023f9\U0000fe0f')
+    async def on_stop(self, payload):
+        await self.message.delete()
+        self.stop()
+
 class Logging(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -350,7 +355,7 @@ class Logging(commands.Cog):
         cursor.execute('SELECT * FROM LOGGING WHERE ServerID = ?', (message.guild.id,))
         info = cursor.fetchone()
         connection.close()
-        if info == None:
+        if info == None or message.author.id == 527682196744699924:
             pass
         else:
             if info[3] == None or info[3] == False or info[1] == None or info[1] == False:
@@ -398,7 +403,7 @@ class Logging(commands.Cog):
             else:
                 loggingchannel = self.bot.get_channel(info[2])
                 embed = discord.Embed(title = f'Message edited in {before.channel.name}', description = f'**Before:**\n{before.content}\n\n**After:**\n{after.content}', timestamp = after.created_at, colour = 0xFF5353)
-                embed.set_footer(text=f'Author: {message.author} Support: https://discord.gg/33utPs9', icon_url=before.author.avatar_url)
+                embed.set_footer(text=f'Author: {before.author} Support: https://discord.gg/33utPs9', icon_url=before.author.avatar_url)
                 await loggingchannel.send(embed=embed)
 
 def setup(bot):
