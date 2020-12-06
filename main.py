@@ -62,6 +62,8 @@ async def on_message(message):
     if len(message.mentions)>4:
         await message.delete()
         await message.channel.send(f'{message.author.mention}, Don\'t mass ping!')
+    elif message.author.id == 617365521985175572 and message.server.id == 758058136602148985:
+        await message.channel.send('imagine being Asian and not getting a single A this year')
     else:
         await bot.process_commands(message)
 
@@ -73,19 +75,27 @@ async def change_status():
 load_list = ['moderation', 'fun', 'meta', 'logging', 'admin']
 
 @bot.command()
-async def reload(ctx):
+async def dev(ctx, reload = None, cog = None):
     success = True
-    if await bot.is_owner(ctx.author):
-        for i in load_list:
+    if await bot.is_owner(ctx.author) or reload == 'reload':
+        if cog == None:
+            for i in load_list:
+                try:
+                    bot.reload_extension(f'cogs.{i}')
+                except:
+                    await ctx.send(f'Something went wrong while reloading cog {i} :x:')
+                    success = False
+                else:
+                    await ctx.send(f'Cog {i} was successfully reloaded :white_check_mark:')
+            if success != False:
+                await ctx.send('All cogs reloaded successfully!')
+        else:
             try:
-                bot.reload_extension(f'cogs.{i}')
+                bot.reload_extension(f'cogs.{cog}')
             except:
-                await ctx.send(f'Something went wrong while load in cog {i} :x:')
-                success = False
+                await ctx.send(f'Something went wrong while reloading cog {cog} :x:')
             else:
-                await ctx.send(f'Cog {i} was successfully loaded in :white_check_mark:')
-        if success != False:
-            await ctx.send('All cogs reloaded successfully!')
+                await ctx.send(f'Cog {cog} was successfully reloaded :white_check_mark:')
     else:
         await ctx.send('You can\'t do that!')
 

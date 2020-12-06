@@ -27,9 +27,9 @@ class MyMenu(menus.Menu):
         connection.close()
         listtoreturn = []
         if info[1] == True:
-            listtoreturn.append(':white_check_mark: Main logging toggle on. Disable with the :play_pause: reaction.')
+            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :play_pause: reaction.')
         else:
-            listtoreturn.append(':x: Main logging toggle off. Enable with the :play_pause: reaction.')
+            listtoreturn.append(':x: Disabled. Toggle with the :play_pause: reaction.')
         if info[3] == True:
             listtoreturn.append(':white_check_mark: Enabled. Toggle with the :one: reaction.')
         else:
@@ -103,7 +103,7 @@ class MyMenu(menus.Menu):
         self.embed.add_field(name='On message delete toggle:', value = info[1])
         self.embed.add_field(name='On bulk message delete toggle:', value = info[2])
         self.embed.add_field(name='On message edit toggle:', value = info[3])
-        self.embed.set_footer(text='Page 1/3: Support: https://discord.gg/33utPs9')
+        self.embed.set_footer(text='Page 1/5: Support: https://discord.gg/33utPs9')
         return await channel.send(embed=self.embed)
 
     @menus.button('\U000023ef\U0000fe0f')
@@ -289,6 +289,88 @@ class MyMenu(menus.Menu):
             self.embed.remove_field(4)
             await self.message.edit(embed=self.embed)
             connection.commit()
+    
+    @menus.button('\U000025c0\U0000fe0f')
+    async def on_left(self, payload):
+        self.embed.clear_fields()
+        info = await self.return_values()
+        if self.menupage == 1:
+            self.menupage = 5
+            self.embed.add_field(name='Main logging toggle:', value = info[0])
+            self.embed.add_field(name='On member ban toggle:', value = info[13])
+            self.embed.add_field(name='On member kick toggle:', value = info[14])
+            self.embed.add_field(name='On guild invite create toggle:', value = info[15])
+            self.embed.set_footer(text='Page 5/5: Support: https://discord.gg/33utPs9')
+        elif self.menupage == 2:
+            self.menupage = 1
+            self.embed.add_field(name='Main logging toggle:', value = info[0])
+            self.embed.add_field(name='On message delete toggle:', value = info[1])
+            self.embed.add_field(name='On bulk message delete toggle:', value = info[2])
+            self.embed.add_field(name='On message edit toggle:', value = info[3])
+            self.embed.set_footer(text='Page 1/5: Support: https://discord.gg/33utPs9')
+        elif self.menupage == 3:
+            self.menupage = 2
+            self.embed.add_field(name='Main logging toggle:', value = info[0])
+            self.embed.add_field(name='On reaction clear toggle:', value = info[4])
+            self.embed.add_field(name='On channel create/delete toggle:', value = info[5])
+            self.embed.add_field(name='On channel edit toggle:', value = info[6])
+            self.embed.set_footer(text='Page 2/5: Support: https://discord.gg/33utPs9')
+        elif self.menupage == 4:
+            self.menupage = 3
+            self.embed.add_field(name='Main logging toggle:', value = info[0])
+            self.embed.add_field(name='On member join toggle:', value = info[7])
+            self.embed.add_field(name='On member leave toggle:', value = info[8])
+            self.embed.add_field(name='On member edit toggle:', value = info[9])
+            self.embed.set_footer(text='Page 3/5: Support: https://discord.gg/33utPs9')
+        else:
+            self.menupage = 4
+            self.embed.add_field(name='Main logging toggle:', value = info[0])
+            self.embed.add_field(name='On guild edit toggle:', value = info[10])
+            self.embed.add_field(name='On role create/delete toggle:', value = info[11])
+            self.embed.add_field(name='On role edit toggle:', value = info[12])
+            self.embed.set_footer(text='Page 4/5: Support: https://discord.gg/33utPs9')
+        await self.message.edit(embed = self.embed)
+
+    @menus.button('\U000025b6\U0000fe0f')
+    async def on_right(self, payload):
+        self.embed.clear_fields()
+        info = await self.return_values()
+        if self.menupage == 4:
+            self.menupage = 5
+            self.embed.add_field(name='Main logging toggle:', value = info[0])
+            self.embed.add_field(name='On member ban toggle:', value = info[13])
+            self.embed.add_field(name='On member kick toggle:', value = info[14])
+            self.embed.add_field(name='On guild invite create toggle:', value = info[15])
+            self.embed.set_footer(text='Page 5/5: Support: https://discord.gg/33utPs9')
+        elif self.menupage == 5:
+            self.menupage = 1
+            self.embed.add_field(name='Main logging toggle:', value = info[0])
+            self.embed.add_field(name='On message delete toggle:', value = info[1])
+            self.embed.add_field(name='On bulk message delete toggle:', value = info[2])
+            self.embed.add_field(name='On message edit toggle:', value = info[3])
+            self.embed.set_footer(text='Page 1/5: Support: https://discord.gg/33utPs9')
+        elif self.menupage == 1:
+            self.menupage = 2
+            self.embed.add_field(name='Main logging toggle:', value = info[0])
+            self.embed.add_field(name='On reaction clear toggle:', value = info[4])
+            self.embed.add_field(name='On channel create/delete toggle:', value = info[5])
+            self.embed.add_field(name='On channel edit toggle:', value = info[6])
+            self.embed.set_footer(text='Page 2/5: Support: https://discord.gg/33utPs9')
+        elif self.menupage == 2:
+            self.menupage = 3
+            self.embed.add_field(name='Main logging toggle:', value = info[0])
+            self.embed.add_field(name='On member join toggle:', value = info[7])
+            self.embed.add_field(name='On member leave toggle:', value = info[8])
+            self.embed.add_field(name='On member edit toggle:', value = info[9])
+            self.embed.set_footer(text='Page 3/5: Support: https://discord.gg/33utPs9')
+        else:
+            self.menupage = 4
+            self.embed.add_field(name='Main logging toggle:', value = info[0])
+            self.embed.add_field(name='On guild edit toggle:', value = info[10])
+            self.embed.add_field(name='On role create/delete toggle:', value = info[11])
+            self.embed.add_field(name='On role edit toggle:', value = info[12])
+            self.embed.set_footer(text='Page 4/5: Support: https://discord.gg/33utPs9')
+        await self.message.edit(embed = self.embed)
 
     @menus.button('\U000023f9\U0000fe0f')
     async def on_stop(self, payload):
