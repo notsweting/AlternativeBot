@@ -7,6 +7,7 @@ import sys
 import traceback
 import os
 from dotenv import load_dotenv
+import sqlite3
 
 load_dotenv()
 bot = commands.Bot(command_prefix = commands.when_mentioned_or('/', '@'), case_insensitive=True)
@@ -35,7 +36,7 @@ async def on_ready():
 
 @bot.event
 async def on_command_error(ctx, error):
-    error = getattr(error, "original", error)
+    error = getattr(error, 'original', error)
     if isinstance(error, commands.CommandNotFound):
         pass
     elif isinstance(error, commands.MissingPermissions):
@@ -57,13 +58,23 @@ async def on_command_error(ctx, error):
             \n The devs have been notified. If this continues, please file a bug report using `/bugreport`.')
         await ctx.send(embed=embed)
 
+def findPrefix(bot, message):
+    connection = sqlite3.connect('AltBotDataBase.db')
+    cursor = connection.cursor()
+    cursor.execute('SELECT * from SERVERADMIN WHERE id = ?', (message.guild.id))
+    if cursor.fetchone() is None:
+        cursor.execute('INSERT INTO SERVERADMIN VALUES (?,?)', (message.guild.id, '/'))
+        return '/'
+    else:
+        cursor.execute('SELECT * FROM SERVERADMIN WHERE id = ?', (message.guild.id,))
+        server = cursor.fetchone()
+        return server[1]
+
 @bot.event
 async def on_message(message):
     if len(message.mentions)>4:
         await message.delete()
         await message.channel.send(f'{message.author.mention}, Don\'t mass ping!')
-    elif message.author.id == 617365521985175572 and message.guild.id == 758058136602148985:
-        await message.channel.send('imagine being Asian and not getting a single A this year')
     else:
         await bot.process_commands(message)
 
@@ -72,23 +83,25 @@ async def on_message(message):
 async def change_status():
     await bot.change_presence(activity=discord.Game(next(status)))
 
-load_list = ['moderation', 'fun', 'meta', 'logging', 'admin']
+load_list = ['moderation', 'fun', 'meta', 'logging', 'admin', 'premium', 'music']
 
 @bot.command()
 async def dev(ctx, reload = None, cog = None):
     success = True
     if await bot.is_owner(ctx.author) or reload == 'reload':
-        if cog == None:
+        if cog is None:
+            message = ''
             for i in load_list:
                 try:
                     bot.reload_extension(f'cogs.{i}')
                 except:
-                    await ctx.send(f'Something went wrong while reloading cog {i} :x:')
+                    message += f'Something went wrong while reloading cog {i} :x: \n'
                     success = False
                 else:
-                    await ctx.send(f'Cog {i} was successfully reloaded :white_check_mark:')
-            if success != False:
-                await ctx.send('All cogs reloaded successfully!')
+                    message += f'Cog {i} was successfully reloaded :white_check_mark: \n'
+            if not success:
+                message += 'All cogs reloaded successfully!'
+            await ctx.send(message)
         else:
             try:
                 bot.reload_extension(f'cogs.{cog}')
@@ -101,15 +114,15 @@ async def dev(ctx, reload = None, cog = None):
 
 #unused = discord.utils.find(lambda role: not role.members, guild.roles)
 # for attributes, it's easier with
-#admin = discord.utils.get(guild.roles, name="admin")
+#admin = discord.utils.get(guild.roles, name='admin')
 # AND
-#channel = discord.utils.get(guild.text_channels, name="help", topic="help channel")
+#channel = discord.utils.get(guild.text_channels, name='help', topic='help channel')
 # when was the message created?
 #created_at = discord.utils.snowflake_time(discord_id) # works for almost all IDs
 # Invite Me!
 #invite = discord.utils.oauth_url(bot.user.id, guild.me.guild_permissions)
 # Escape markdowns...
-#safe = discord.utils.escape_markdown("**Bold text** and ||spoiler||")
+#safe = discord.utils.escape_markdown('**Bold text** and ||spoiler||')
 # Don't Mention It!
 #safe_everyone = discord.utils.escape_mentions(guild.me.mention)
 

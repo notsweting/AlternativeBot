@@ -4,7 +4,7 @@ from discord.ext import commands, tasks, menus
 from discord.ext.commands.cooldowns import BucketType
 import sqlite3
 from discord.ext import menus
-import time
+import datetime
 
 '''
 Table definitions:
@@ -545,7 +545,7 @@ class Logging(commands.Cog):
                 channel = self.bot.get_channel(payload.channel_id)
                 loggingchannel = self.bot.get_channel(info[2])
                 embed = discord.Embed(title = f'Bulk message delete in #{channel.name}', description = 'A bulk message delete was run!', colour = 0xFF5353)
-                embed.set_footer(text=f'Support: https://discord.gg/33utPs9', icon_url='https://cdn.discordapp.com/avatars/527682196744699924/f756a3c3af60b450514c27819dda8fcf.webp?size=1024')
+                embed.set_footer(text=f'Support: https://discord.gg/33utPs9', icon_url=self.bot.user.avatar_url)
                 await loggingchannel.send(embed=embed)
 
     @commands.Cog.listener()
@@ -558,7 +558,7 @@ class Logging(commands.Cog):
         if info == None:
             pass
         else:
-            if info[5] == None or info[5] == False or info[5] == None or info[1] == False or before.content == after.content:
+            if not info[5] or info[1] or before.content == after.content:
                 pass
             else:
                 loggingchannel = self.bot.get_channel(info[2])
@@ -568,7 +568,22 @@ class Logging(commands.Cog):
     
     @commands.Cog.listener()
     async def on_reaction_clear(self, message, reactions):
-        pass
+        connection = sqlite3.connect('AltBotDataBase.db')
+        cursor = connection.cursor()
+        cursor.execute('SELECT * FROM LOGGING WHERE ServerID = ?', (message.guild.id,))
+        info = cursor.fetchone()
+        connection.close()
+        if info == None:
+            pass
+        else:
+            if not info[6] or not info[1]:
+                pass
+            else:
+                loggingchannel = self.bot.get_channel(info[2])
+                await loggingchannel.send('**Please ping alt to fix this. thanks.**')
+                embed = discord.Embed(title = f'Reactions cleared in {message.channel.name}', description = f'**List of reactions lost:**\n\n||{reactions}||', timestamp = datetime.datetime.utcnow(), colour = 0xFF5353)
+                embed.set_footer(text=f'Author: {message.author} Support: https://discord.gg/33utPs9', icon_url=self.bot.user.author.avatar_url)
+                await loggingchannel.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_channel_create(self, channel):

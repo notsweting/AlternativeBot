@@ -19,13 +19,25 @@ class Moderation(commands.Cog):
     @commands.guild_only()
     @commands.has_permissions(manage_messages=True)
     @commands.command()
-    async def purge(self, ctx, amount : int=5):
-        embed = discord.Embed (title='**A purge has been run!**', color=ctx.author.color, timestamp=ctx.message.created_at)
-        embed.add_field(name='Purged messages:', value=amount)
-        embed.add_field(name='Purged by:', value=ctx.author.mention)
-        embed.set_footer(text='Support: https://discord.gg/33utPs9', icon_url=ctx.author.avatar_url)
-        await ctx.channel.purge(limit=amount+1)
-        await ctx.send(embed=embed)
+    async def purge(self, ctx, amount : int=5, filter : str = None, filterstring : str = None):
+        if filter is None:
+            embed = discord.Embed (title='**A purge has been run!**', color=ctx.author.color, timestamp=ctx.message.created_at)
+            embed.add_field(name='Purged messages:', value=amount)
+            embed.add_field(name='Purged by:', value=ctx.author.mention)
+            embed.set_footer(text='Support: https://discord.gg/33utPs9', icon_url=ctx.author.avatar_url)
+            await ctx.channel.purge(limit=amount+1)
+            await ctx.send(embed=embed)
+        elif filter.lower() == 'has' and filterstring is None and amount < 100:
+            purged = 0
+            async for message in channel.history(limit = amount, oldest_first = True):
+                if filterstring.lower() in message.content:
+                    await message.delete()
+                    purged += 1
+            embed = discord.Embed (title='**A purge has been run!**', color=ctx.author.color, timestamp=ctx.message.created_at)
+            embed.add_field(name='Purged messages:', value=purged)
+            embed.add_field(name='Purged by:', value=ctx.author.mention)
+            embed.set_footer(text='Support: https://discord.gg/33utPs9', icon_url=ctx.author.avatar_url)
+            await ctx.send(embed=embed)    
 
     @commands.guild_only()
     @commands.has_permissions(kick_members=True)   
@@ -256,27 +268,35 @@ class Moderation(commands.Cog):
     @commands.has_permissions(manage_channels=True)
     @commands.command()
     async def lock(self, ctx):
+        connection = sqlite3.connect('AltBotDataBase.db')
+        cursor = connection.cursor()
+        cursor.execute('SELECT * FROM CHANNELLOCK WHERE ChannelID = ?', (ctx.channel.id,))
+        info = cursor.fetchone()
+        if info == None:
+            cursor.execute('INSERT INTO CHANNELLOCK (ServerID, ctx.channel.overwrites)')
         for i in ctx.guild.roles:
-                if i.permissions.manage_messages == True:
-                    pass
-                elif i in ctx.channel.overwrites:
-                    await ctx.channel.set_permissions(i, send_messages=False)
-                else:
-                    pass
+            if i.permissions.manage_messages == True:
+                pass
+            elif i in ctx.channel.overwrites:
+                await ctx.channel.set_permissions(i, send_messages=False)
+            else:
+                pass
         await ctx.send(':thumbsup: Locked channel.')
 
     @commands.guild_only()
     @commands.has_permissions(manage_channels=True)
     @commands.command()
     async def unlock(self, ctx):
-        for i in ctx.guild.roles:
-                if i.name == 'Muted':
-                    pass
-                elif i in ctx.channel.overwrites:
-                    await ctx.channel.set_permissions(i, send_messages=True)
-                else:
-                    pass
-        await ctx.send(':thumbsup: Unlocked channel.')
+        connection = sqlite3.connect('AltBotDataBase.db')
+        cursor = connection.cursor()
+        cursor.execute('SELECT * FROM CHANNELLOCK WHERE ServerID = ?', (ctx.guild.id,))
+        info = cursor.fetchone()
+        cursor.execute('DELETE FROM CHANNELLOCK WHERE ServerID = ?', (ctx.guild.id,))
+        if info == None:
+            await ctx.send('Your settings may have been lost, or you haven\'t run lock yet. Aborting process.')
+        else:
+            ctx.channel.overwrites = info[1]
+            await ctx.send(':thumbsup: Unlocked channel.')
 
     @commands.guild_only()
     @commands.has_permissions(manage_roles=True)
@@ -292,9 +312,9 @@ class Moderation(commands.Cog):
     @commands.guild_only()
     @commands.has_permissions(manage_roles=True)
     @commands.command()
-    async def removerole(self, ctx, member : discord.Member, role : discord.Role):
+    async def unrole(self, ctx, member : discord.Member, role : discord.Role):
         try:
-            await member.remove_roles(role, reason=f'{ctx.author}(ID: {ctx.author.id}) ran /removerole')
+            await member.remove_roles(role, reason=f'{ctx.author}(ID: {ctx.author.id}) ran /unrole')
         except discord.Forbidden:
             await ctx.send('I don\'t have permission to do that! Make sure I have the correct permissions, then try again.')
         else:

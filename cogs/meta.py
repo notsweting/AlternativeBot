@@ -16,9 +16,11 @@ class Meta(commands.Cog):
     > **New stuff:**
     > - `/rockpaperscissors`is finally complete! Challenge all of your friends and **defeat them all.**
     > - `/mute` is done! Use `/bindmuterole` to automatically create a `Muted` role, or pass in your own role to use your own!
-    > 
+    > - `/lock` is also done! Quickly lock your channels down in case of a raid!
+    > - Logging is finally complete! Use `/togglelogging` and begin tracking your server's moderation actions!
+    >
     > **In progress:**
-    > - Channel and server-wide lock command
+    > - 
     ''')
 
     #help command
@@ -26,29 +28,30 @@ class Meta(commands.Cog):
     @commands.command(ignore_extra=True)
     async def help(self, ctx, info=None):
         if info == None:
-            embed = discord.Embed(title="AlternativeBot Help and Documentation", description="Categories. Do /help [category] to get more info.\
-            \nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
+            embed = discord.Embed(title='AlternativeBot Help and Documentation', description='Categories. Do /help [category] to get more info.\
+            \nThis message will be deleted in 60 seconds.', colour=ctx.author.color)
             embed.add_field(name='Fun', value='Some fun commands for you to use!')
             embed.add_field(name='Meta', value='Bot-related and user-related commands. Includes /whois, /about, and /bugreport.')
             embed.add_field(name='Moderation', value='These commands empower the moderation team. Rest assured, I won\'t do what the user can\'t.')
+            embed.add_field(name='Logging', value='Track what your moderators are doing with these commands!')
             embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} | Support: https://discord.gg/33utPs9', icon_url=ctx.author.avatar_url)
             await ctx.send (embed=embed, delete_after=60)
         elif info.lower()=='fun':
-            embed = discord.Embed(title="AlternativeBot Help and Documentation", description="Here are some fun commands for you to use!\
-            \nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
-            embed.add_field(name="/8ball (question)", value="Ask the magic 8ball a question!")
+            embed = discord.Embed(title='AlternativeBot Help and Documentation', description='Here are some fun commands for you to use!\
+            \nThis message will be deleted in 60 seconds.', colour=ctx.author.color)
+            embed.add_field(name='/8ball (question)', value='Ask the magic 8ball a question!')
             embed.add_field(name='/slap [person]', value='Slap someone.')
             embed.add_field(name='/hug [person]', value='Hug someone.')
             embed.add_field(name='/fight [person]', value='Fight someone.')
-            embed.add_field(name='/rockpaperscissors [person] **BETA**', value='Challenge someone to a rock paper scissors challenge! \
-            (Must have DMs open) **WARNING: Command is in beta and may not work as intended. Use /bugreport to report bugs.**')
+            embed.add_field(name='/rockpaperscissors [person]', value='Challenge someone to a rock paper scissors challenge! \
+            (Must have DMs open)')
             embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} | Support: https://discord.gg/33utPs9', icon_url=ctx.author.avatar_url)
             await ctx.send (embed=embed, delete_after=60)
         elif info.lower()=='meta':
-            embed = discord.Embed(title="AlternativeBot Help and Documentation", description="Meta commands. Concerns more of the geeky side of the userbase.\
-            \nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
+            embed = discord.Embed(title='AlternativeBot Help and Documentation', description='Meta commands. Concerns more of the geeky side of the userbase.\
+            \nThis message will be deleted in 60 seconds.', colour=ctx.author.color)
             embed.add_field(name='/about', value='Get information about the bot!')
-            embed.add_field(name="/ping", value="Check the ping of the bot to the Discord API.")    
+            embed.add_field(name='/ping', value='Check the ping of the bot to the Discord API.')    
             embed.add_field(name='/whois (person)', value='Get info on a member in the server.')
             embed.add_field(name= '/membercount', value='Get the amount of members in the server.')
             embed.add_field(name='/bugreport (description)', value='Report a bug!')    
@@ -56,12 +59,27 @@ class Meta(commands.Cog):
             embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} | Support: https://discord.gg/33utPs9', icon_url=ctx.author.avatar_url)
             await ctx.send (embed=embed, delete_after=60)
         elif info.lower()=='mod' or info.lower()=='moderation':
-            embed = discord.Embed(title="AlternativeBot Help and Documentation", description="Moderation commands.\nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
+            embed = discord.Embed(title='AlternativeBot Help and Documentation', description='Moderation commands.\nThis message will be deleted in 60 seconds.', colour=ctx.author.colour)
             embed.add_field(name='/purge (no. of messages)', value='Purge messages. Number of messages defaults to 5. Requires manage messages permission.')
-            embed.add_field(name="/kick [member] (reason)", value="Kick a member. Reason defaults to no reason. Requires kick members permission.")
-            embed.add_field(name="/ban [member/user id] (reason)", value="Permanently ban a member. Reason defaults to no reason. Requires ban members permission.")
+            embed.add_field(name='/kick [member] (reason)', value='Kick a member. Reason defaults to "no reason". Requires kick members permission.')
+            embed.add_field(name='/ban [member/user id] (reason)', value='Permanently ban a member. Reason defaults to "no reason". Requires ban members permission.')
+            embed.add_field(name='/unban [user id] (reason)', value='Unban a user. Reason defaults to "no reason". Requires ban members permission.')
+            embed.add_field(name='/mute [user] (reason)', value='Permanently mute a user. Reason defaults to "no reason". Requires manage roles permission.')
+            embed.add_field(name='/unmute [user] (reason)', value='Unmute a user. Reason defaults to "no reason". Requires manage roles permission')
+            embed.add_field(name='/bindmuterole (role)', value='Bind a mute role to a server. \
+                This role will be used for muting users. If a role isnt specified, one will be created automatically. Requires manage roles permission.')
+            embed.add_field(name='/unbindmuterole', value='Delete this server\'s mute role. `/mute` will no longer work. Requires manage roles permission.')
+            embed.add_field(name='/lock', value='Lock the channel the command was run in. All users will be barred from speaking. Requires manage channels permission.')
+            embed.add_field(name='/unlock', value='Unlock the channel the command was run in. The previous channel overwrites will be restored. Requires manage channels permission.')
+            embed.add_field(name='/role [member]', value='Give a member the selected role. Requires manage roles permission.')
+            embed.add_field(name='/unrole [member]', value='Remove the selected role from a member. Requires manage roles permission.')
             embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} | Support: https://discord.gg/33utPs9', icon_url=ctx.author.avatar_url)
             await ctx.send (embed=embed, delete_after=60)
+        elif info.lower()=='logging':
+            embed = discord.Embed(title='AlternativeBot Help and Documentation', description='Logging commands.\nThis message will be deleted in 60 seconds.', colour=ctx.author.colour)
+            embed.add_field(name='/togglelogging', value='Returns a menu to toggle specific logging events. Requires manage servers permission.')
+            embed.add_field(name='/bindloggingchannel [channel]', value='Bind a logging channel to the server. Requires manage channels permission.')
+            embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} | Support: https://discord.gg/33utPs9', icon_url=ctx.author.avatar_url)
         else:
             await ctx.send('That\'s not a valid field!')
         
@@ -108,7 +126,7 @@ class Meta(commands.Cog):
             try:
                 description = await self.bot.wait_for('message', timeout = 60, check=check)
             except asyncio.TimeoutError: 
-                await ctx.send("You took too long to respond!")            
+                await ctx.send('You took too long to respond!')            
             else: 
                 await ctx.send(f'''Your bug has been reported!''')
                 embed=discord.Embed(title='AlternativeBot bug report', color=ctx.author.color, timestamp=ctx.message.created_at)
@@ -144,7 +162,7 @@ class Meta(commands.Cog):
             try:
                 description = await self.bot.wait_for('message', timeout = 60, check=check)
             except asyncio.TimeoutError: 
-                await ctx.send("You took too long to respond!")            
+                await ctx.send('You took too long to respond!')            
             else: 
                 await ctx.send(f'Thanks for your suggestion!')
                 embed=discord.Embed(title='AlternativeBot Suggestion Form', color=ctx.author.color, timestamp=ctx.message.created_at)
@@ -158,15 +176,15 @@ class Meta(commands.Cog):
     #ping command
     @commands.command()
     async def ping(self, ctx):
-        await ctx.send(f":ping_pong: Pong! {round(self.bot.latency * 1000)}ms")
+        await ctx.send(f':ping_pong: Pong! {round(self.bot.latency * 1000)}ms')
         
     #about command
     @commands.command()
     async def about(self, ctx):
-        embed = discord.Embed(title="About the bot", colour=ctx.author.color)
-        embed.add_field(name='Developer', value = "ThisIsanAlt#3043")
+        embed = discord.Embed(title='About the bot', colour=ctx.author.color)
+        embed.add_field(name='Developer', value = 'ThisIsanAlt#3043')
         embed.add_field(name='Server invite', value = 'https://discord.gg/33utPs9')
-        embed.add_field(name='Programming Language and library', value="Python 3.8.5, discord.py version 1.5.0")
+        embed.add_field(name='Programming Language and library', value='Python 3.8.5, discord.py version 1.5.0')
         embed.set_footer(text=f'Requested by {ctx.author} | Support: https://discord.gg/33utPs9', icon_url=ctx.author.avatar_url)
     
         await ctx.send (embed=embed)
@@ -189,7 +207,7 @@ class Meta(commands.Cog):
         embed.add_field(name='Nickname:', value=value1)
         embed.add_field(name='Created at:', value=member.created_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
         embed.add_field(name='Joined at:', value=member.joined_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
-        embed.add_field(name=f'Roles: ({len(roles)})', value=" ".join([role.mention for role in roles]))
+        embed.add_field(name=f'Roles: ({len(roles)})', value=' '.join([role.mention for role in roles]))
         embed.add_field(name='Top Role:', value=member.top_role.mention)
 
         if member.bot:
