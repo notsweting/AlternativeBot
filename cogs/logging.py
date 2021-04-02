@@ -43,37 +43,37 @@ class MyMenu(menus.Menu):
         else:
             listtoreturn.append(':x: Disabled. Toggle with the :three: reaction.')
         if info[6] == True:
-            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :three: reaction.')
+            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :one: reaction.')
         else:
-            listtoreturn.append(':x: Disabled. Toggle with the :three: reaction.')
+            listtoreturn.append(':x: Disabled. Toggle with the :one: reaction.')
         if info[7] == True:
-            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :one: reaction.')
+            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :two: reaction.')
         else:
-            listtoreturn.append(':x: Disabled. Toggle with the :one: reaction.')
+            listtoreturn.append(':x: Disabled. Toggle with the :two: reaction.')
         if info[8] == True:
-            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :two: reaction.')
+            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :three: reaction.')
         else:
-            listtoreturn.append(':x: Disabled. Toggle with the :two: reaction.')
+            listtoreturn.append(':x: Disabled. Toggle with the :three: reaction.')
         if info[9] == True:
-            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :three: reaction.')
-        else:
-            listtoreturn.append(':x: Disabled. Toggle with the :three: reaction.')
-        if info[10] == True:
-            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :three: reaction.')
-        else:
-            listtoreturn.append(':x: Disabled. Toggle with the :three: reaction.')
-        if info[11] == True:
             listtoreturn.append(':white_check_mark: Enabled. Toggle with the :one: reaction.')
         else:
             listtoreturn.append(':x: Disabled. Toggle with the :one: reaction.')
-        if info[12] == True:
+        if info[10] == True:
             listtoreturn.append(':white_check_mark: Enabled. Toggle with the :two: reaction.')
         else:
             listtoreturn.append(':x: Disabled. Toggle with the :two: reaction.')
-        if info[13] == True:
+        if info[11] == True:
             listtoreturn.append(':white_check_mark: Enabled. Toggle with the :three: reaction.')
         else:
             listtoreturn.append(':x: Disabled. Toggle with the :three: reaction.')
+        if info[12] == True:
+            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :one: reaction.')
+        else:
+            listtoreturn.append(':x: Disabled. Toggle with the :one: reaction.')
+        if info[13] == True:
+            listtoreturn.append(':white_check_mark: Enabled. Toggle with the :two: reaction.')
+        else:
+            listtoreturn.append(':x: Disabled. Toggle with the :two: reaction.')
         if info[14] == True:
             listtoreturn.append(':white_check_mark: Enabled. Toggle with the :three: reaction.')
         else:
@@ -522,31 +522,14 @@ class Logging(commands.Cog):
                 pass
             else:
                 channel = discord.utils.get(message.guild.channels, id=info[2])
+                async for entry in message.guild.audit_logs(limit=1, action=discord.AuditLogAction.message_delete, before=datetime.datetime.utcnow()):
+                    author = entry.user if not None else author
                 try:
-                    embed = discord.Embed(title = f'Message deleted in #{message.channel}', description = message.content, timestamp = message.created_at, colour = 0xFF5353)
+                    embed = discord.Embed(title = f'Message deleted in #{message.channel}', description = f'**Message content:** {message.content}\n\n**Deleted by:**{author.mention}', timestamp = datetime.datetime.utcnow(), colour = 0xFF5353)
                     embed.set_footer(text=f'Author: {message.author} | Support: https://discord.gg/33utPs9', icon_url=message.author.avatar_url)
                     await channel.send(embed=embed)
                 except:
                     pass
-    
-    @commands.Cog.listener()
-    async def on_raw_bulk_message_delete(self, payload):
-        connection = sqlite3.connect('AltBotDataBase.db')
-        cursor = connection.cursor()
-        cursor.execute('SELECT * FROM LOGGING WHERE ServerID = ?', (payload.guild_id,))
-        info = cursor.fetchone()
-        connection.close()
-        if info == None:
-            pass
-        else:
-            if info[4] == None or info[4] == False or info[1] == None or info[1] == False:
-                pass
-            else:
-                channel = self.bot.get_channel(payload.channel_id)
-                loggingchannel = self.bot.get_channel(info[2])
-                embed = discord.Embed(title = f'Bulk message delete in #{channel.name}', description = 'A bulk message delete was run!', colour = 0xFF5353)
-                embed.set_footer(text=f'Support: https://discord.gg/33utPs9', icon_url=self.bot.user.avatar_url)
-                await loggingchannel.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
@@ -558,11 +541,11 @@ class Logging(commands.Cog):
         if info == None:
             pass
         else:
-            if not info[5] or info[1] or before.content == after.content:
+            if info[5] == None or info[5] == False or info[5] == None or info[1] == False or before.content == after.content:
                 pass
             else:
                 loggingchannel = self.bot.get_channel(info[2])
-                embed = discord.Embed(title = f'Message edited in {before.channel.name}', description = f'**Before:**\n{before.content}\n\n**After:**\n{after.content}', timestamp = after.created_at, colour = 0xFF5353)
+                embed = discord.Embed(title = f'Message edited in {before.channel.name}', description = f'**Before:**\n{before.content}\n\n**After:**\n{after.content}', timestamp = datetime.datetime.utcnow(), colour = 0xFF5353)
                 embed.set_footer(text=f'Author: {before.author} Support: https://discord.gg/33utPs9', icon_url=before.author.avatar_url)
                 await loggingchannel.send(embed=embed)
     
@@ -576,25 +559,42 @@ class Logging(commands.Cog):
         if info == None:
             pass
         else:
-            if not info[6] or not info[1]:
+            if info[6] == None or info[6] == False or info[5] == None or info[1] == False:
                 pass
             else:
                 loggingchannel = self.bot.get_channel(info[2])
-                await loggingchannel.send('**Please ping alt to fix this. thanks.**')
-                embed = discord.Embed(title = f'Reactions cleared in {message.channel.name}', description = f'**List of reactions lost:**\n\n||{reactions}||', timestamp = datetime.datetime.utcnow(), colour = 0xFF5353)
-                embed.set_footer(text=f'Author: {message.author} Support: https://discord.gg/33utPs9', icon_url=self.bot.user.author.avatar_url)
+                embed = discord.Embed(title = f'Reactions cleared in {message.channel.name}', description = f'Reactions cleared: {i for i in reactions}', timestamp = datetime.datetime.utcnow(), colour = 0xFF5353)
+                embed.set_footer(text=f'Support: https://discord.gg/33utPs9', icon_url=self.bot.user.avatar_url)
                 await loggingchannel.send(embed=embed)
 
     @commands.Cog.listener()
-    async def on_channel_create(self, channel):
+    async def on_guild_channel_create(self, channel):
+        connection = sqlite3.connect('AltBotDataBase.db')
+        cursor = connection.cursor()
+        cursor.execute('SELECT * FROM LOGGING WHERE ServerID = ?', (channel.guild.id,))
+        info = cursor.fetchone()
+        connection.close()
+        if info == None:
+            pass
+        else:
+            if info[7] == None or info[7] == False or info[5] == None or info[1] == False:
+                pass
+            else:
+                async for entry in channel.guild.audit_logs(limit=1, action=discord.AuditLogAction.channel_create, before=datetime.datetime.utcnow()):
+                    creator = entry.user
+                    reason = entry.reason
+                loggingchannel = self.bot.get_channel(info[2])
+                embed = discord.Embed(title = f'New channel created: {channel.name}', description = f'**Creator of the channel:**\n{creator.mention}\n\n**Reason:**\n{reason}', timestamp = datetime.datetime.utcnow(), colour = 0xFF5353)
+                embed.set_footer(text=f'Support: https://discord.gg/33utPs9', icon_url=self.bot.user.avatar_url)
+                await loggingchannel.send(embed=embed) 
+
+
+    @commands.Cog.listener()
+    async def on_guild_channel_delete(self, channel):
         pass
 
     @commands.Cog.listener()
-    async def on_channel_delete(self, channel):
-        pass
-
-    @commands.Cog.listener()
-    async def on_channel_edit(self, before, after):
+    async def on_guild_channel_edit(self, before, after):
         pass
 
     @commands.Cog.listener()

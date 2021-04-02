@@ -73,8 +73,12 @@ def findPrefix(bot, message):
 @bot.event
 async def on_message(message):
     if len(message.mentions)>4:
-        await message.delete()
-        await message.channel.send(f'{message.author.mention}, Don\'t mass ping!')
+        try:
+            await message.delete()
+        except:
+            pass
+        else:
+            await message.channel.send(f'{message.author.mention}, Don\'t mass ping!')
     else:
         await bot.process_commands(message)
 
