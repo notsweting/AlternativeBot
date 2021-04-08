@@ -27,7 +27,7 @@ class Meta(commands.Cog):
     @commands.cooldown(1, 3, BucketType.user)
     @commands.command(ignore_extra=True)
     async def help(self, ctx, info=None):
-        if info == None:
+        if not info:
             embed = discord.Embed(title='AlternativeBot Help and Documentation', description='Categories. Do /help [category] to get more info.\
             \nThis message will be deleted in 60 seconds.', colour=ctx.author.color)
             embed.add_field(name='Fun', value='Some fun commands for you to use!')
@@ -58,12 +58,12 @@ class Meta(commands.Cog):
             embed.add_field(name='~~/suggest (suggestion)~~', value='**Command is currently unavailable.** ~~Suggest something for the bot!~~')
             embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} | Support: https://discord.gg/33utPs9', icon_url=ctx.author.avatar_url)
             await ctx.send (embed=embed, delete_after=60)
-        elif info.lower()=='mod' or info.lower()=='moderation':
+        elif info.lower() in ['mod', 'moderation']:
             embed = discord.Embed(title='AlternativeBot Help and Documentation', description='Moderation commands.\nThis message will be deleted in 60 seconds.', colour=ctx.author.colour)
             embed.add_field(name='/purge (no. of messages)', value='Purge messages. Number of messages defaults to 5. Requires manage messages permission.')
             embed.add_field(name='/kick [member] (reason)', value='Kick a member. Reason defaults to "no reason". Requires kick members permission.')
             embed.add_field(name='/ban [member/user id] (reason)', value='Permanently ban a member. Reason defaults to "no reason". Requires ban members permission.')
-            embed.add_field(name='/unban [user id] (reason)', value='Unban a user. Reason defaults to "no reason". Requires ban members permission.')
+            embed.add_field(name='/unban [user id : int] (reason)', value='Unban a user. Reason defaults to "no reason". Requires ban members permission.')
             embed.add_field(name='/mute [user] (reason)', value='Permanently mute a user. Reason defaults to "no reason". Requires manage roles permission.')
             embed.add_field(name='/unmute [user] (reason)', value='Unmute a user. Reason defaults to "no reason". Requires manage roles permission')
             embed.add_field(name='/bindmuterole (role)', value='Bind a mute role to a server. \

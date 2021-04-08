@@ -67,6 +67,7 @@ class Admin(commands.Cog):
                     await ctx.send(f'```py\n{value}{ret}\n```')
         else:
             await ctx.send('You can\'t do that!')
+            
 def setup(bot):
     bot.add_cog(Admin(bot))
     

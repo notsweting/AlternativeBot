@@ -70,9 +70,9 @@ class Fun(commands.Cog):
     
     @commands.command()
     async def rockpaperscissors(self, ctx, member: discord.Member):
-        await ctx.send('**This command is under construction. Report bugs with /reportbug.**')
-        await ctx.send(f'{ctx.author.mention} has challenged {member.mention} to a rock paper scissors contest!')
-        await ctx.send(f'To accept the challenge, {member}, send `accept` to accept!')
+        await ctx.send('**This command is in development and may not be finalized yet. Report bugs with /reportbug.**')
+        await ctx.send(f'{ctx.author.mention} has challenged {member.mention} to a rock paper scissors contest!\nTo accept the challenge, {member}, send `accept` to accept!')
+        
         responses = ['rock', 'paper', 'scissors']
         def check(message : discord.Message) -> bool:
             return message.author == member and message.content == 'accept'
@@ -82,47 +82,44 @@ class Fun(commands.Cog):
         
         def check2(message : discord.Message) -> bool:
             return message.author == ctx.author and message.content in responses
+
         try:
-            await self.bot.wait_for('message', timeout = 60, check = check)
+            await self.bot.wait_for('message', timeout = 30, check = check)
         except asyncio.TimeoutError: 
-            await ctx.send(f"{member} took too long to respond!")            
+            await ctx.send(f"{member} took too long to respond!")
+            return       
         else:
             await ctx.author.send(f'{member} accepted your challenge! Please use any of the following: `rock` `paper` `scissors` to select your choice!')
         
-            try:
-                notauthorresponse = await self.bot.wait_for('message', timeout = 29, check = check2)
-            except asyncio.TimeoutError: 
-                await member.send(f"{ctx.author.name} took too long to respond!")            
+        try:
+            notauthorresponse = await self.bot.wait_for('message', timeout = 30, check = check2)
+        except asyncio.TimeoutError: 
+            await member.send(f"{ctx.author.name} took too long to respond!")
+            return
+        else:
+            await ctx.author.send(':thumbsup: Recieved your response!')
+
+        try:
+            await member.send(f'You accepted {ctx.author}\'s challenge! Please use any of the following: `rock` `paper` `scissors` to select your choice!')
+            notmemberresponse = await self.bot.wait_for('message', timeout = 30, check = check1)
+        except asyncio.TimeoutError: 
+            await member.send(f"{ctx.author.name} took too long to respond!")            
+        else:   
+            authorresponse = notauthorresponse.content.lower()
+            memberresponse = notmemberresponse.content.lower()
+            await member.send(':thumbsup: Recieved your response!')
+            if authorresponse == memberresponse:
+                await ctx.send(f'It\'s a tie! They both chose {memberresponse}')
+
+            elif (authorresponse == 'rock' and memberresponse == 'scissors') or \
+                (authorresponse == 'paper' and memberresponse == 'rock') or (authorresponse == 'scissors' and memberresponse == 'paper'):
+                await ctx.send(f'{ctx.author.mention} won! They chose {authorresponse}, {member.mention} chose {memberresponse}')
+
+            elif (authorresponse == 'rock' and memberresponse == 'paper') or \
+                (authorresponse == 'paper' and memberresponse == 'scissors') or (authorresponse == 'scissors' and memberresponse == 'rock'):
+                await ctx.send(f'{member.mention} won! They chose {memberresponse}, {ctx.author.mention} chose {authorresponse}')
             else:
-                await ctx.author.send(':thumbsup: Recieved your response!')
-                try:
-                    await member.send(f'You accepted {ctx.author}\'s challenge! Please use any of the following: `rock` `paper` `scissors` to select your choice!')
-                    notmemberresponse = await self.bot.wait_for('message', timeout = 29, check = check1)
-                except asyncio.TimeoutError: 
-                    await member.send(f"{ctx.author.name} took too long to respond!")            
-                else:   
-                    authorresponse = notauthorresponse.content.lower()
-                    memberresponse = notmemberresponse.content.lower()
-                    await member.send(':thumbsup: Recieved your response!')
-                    if authorresponse == 'rock' and memberresponse == 'paper':
-                        await ctx.send(f'{member.mention} won! They chose {memberresponse}, {ctx.author.mention} chose {authorresponse}')
-                    elif authorresponse == 'rock' and memberresponse == 'scissors':
-                        await ctx.send(f'{ctx.author.mention} won! They chose {authorresponse}, {member.mention} chose {memberresponse}')
-                    elif authorresponse == 'paper' and memberresponse == 'rock':
-                        await ctx.send(f'{ctx.author.mention} won! They chose {authorresponse}, {member.mention} chose {memberresponse}')
-                    elif authorresponse == 'paper' and memberresponse == 'scissors':
-                        await ctx.send(f'{member.mention} won! They chose {memberresponse}, {ctx.author.mention} chose {authorresponse}')
-                    elif authorresponse == 'scissors' and memberresponse == 'paper':
-                        await ctx.send(f'{ctx.author.mention} won! They chose {authorresponse}, {member.mention} chose {memberresponse}')
-                    elif authorresponse == 'scissors' and memberresponse == 'rock':
-                        await ctx.send(f'{member.mention} won! They chose {memberresponse}, {ctx.author.mention} chose {authorresponse}')
-                    elif authorresponse == memberresponse:
-                        await ctx.send(f'It\'s a tie! They both chose {memberresponse}')
-                    else:
-                        await ctx.send(f'Something went wrong. Choices: {ctx.author.mention} chose {authorresponse}, {member.mention} {memberresponse}')
-                
-                finally: 
-                    pass
+                await ctx.send(f'Something went wrong. Choices: {ctx.author.mention} chose {authorresponse}, {member.mention} {memberresponse}')
 
 def setup(bot):
     bot.add_cog(Fun(bot))

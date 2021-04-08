@@ -44,7 +44,7 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('You\'re missing an argument. Check the command and ensure that all arguments are present.')
     elif isinstance(error, commands.BadArgument):
-        await ctx.send('One or more of your arguments didn\'t make sense. Make sure your arguments are valid, then try again.')
+        await ctx.send('One or more of your arguments didn\'t make sense. Are you sure that your arguments are of the right type?')
     elif isinstance(error, discord.Forbidden):
         await ctx.send('I don\'t have permission to do that! Make sure I have the correct permissions, then try again.')
     elif isinstance(error, commands.CommandOnCooldown):

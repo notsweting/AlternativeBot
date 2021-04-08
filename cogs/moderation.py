@@ -3,6 +3,7 @@ import asyncio
 from discord.ext import commands, tasks
 from discord.ext.commands.cooldowns import BucketType
 import sqlite3
+import datetime
 
 '''
 Table definitions:
@@ -148,7 +149,7 @@ class Moderation(commands.Cog):
         role = cursor.fetchone()
         roleID = role[0]
 
-        if roleID == None:
+        if not roleID:
             await ctx.send('A Muted role has not been bound yet! Run `/bindmuterole` to bind a Muted role to this server!')
         else:
             role = discord.utils.get(ctx.guild.roles, id=int(roleID))
@@ -168,71 +169,23 @@ class Moderation(commands.Cog):
     @commands.command()
     async def bindmuterole(self, ctx, role: discord.Role = None):
         connection = sqlite3.connect('AltBotDataBase.db')
-        cursor = connection.cursor()
-        if role == None:
-            cursor.execute(f'SELECT RoleID FROM MUTEDROLES WHERE ServerID=?', (ctx.guild.id,))
-            role = cursor.fetchone()
-            roleID = role[0]
-            if role == None:
-                role = await ctx.guild.create_role(name = 'Muted', reason = f'{ctx.author} (ID:{ctx.author.id}) ran /bindmuterole')
-                for i in ctx.guild.channels:
-                    await i.set_permissions(role, send_messages=False)
-                cursor.execute(f'INSERT INTO MUTEDROLES(ServerID, RoleID) VALUES (?, ?)', (ctx.guild.id, role.id))
-                await ctx.send(f':thumbsup: Bound {role.mention} to {ctx.guild.name} as Muted role.')
-            elif discord.utils.get(ctx.guild.roles, id=int(roleID)) != None:
-                await ctx.send('A Muted role has already been bound to this server! Are you sure you want to continue? `yes/no`')
-                def check(message : discord.Message) -> bool:
-                    return message.author == ctx.author and message.channel == ctx.channel
-                
-                try:
-                    message = await self.bot.wait_for('message', timeout = 60, check = check)
-                except asyncio.TimeoutError: 
-                    await ctx.send('You took too long to respond! Aborting process.')            
-                else:
-                    if message.content.lower() == 'yes':
-                        role = await ctx.guild.create_role(name = 'Muted', reason = f'{ctx.author} (ID:{ctx.author.id}) ran /bindmuterole')
-                        for i in ctx.guild.channels:
-                            await i.set_permissions(role, send_messages=False)
-                        cursor.execute('UPDATE MUTEDROLES SET RoleID = ? WHERE ServerID = ?', (role.id, ctx.guild.id))
-                        await ctx.send(f':thumbsup: Bound {role.mention} to {ctx.guild.name} as Muted role.')
-                    else:
-                        await ctx.send('Process aborted.')
-            else:
-                await ctx.send('A Muted role has already been bound to this server, but it was deleted. Binding new Muted role.')
-                role = await ctx.guild.create_role(name = 'Muted', reason = f'{ctx.author} (ID:{ctx.author.id}) ran /bindmuterole')
-                for i in ctx.guild.channels:
-                    await i.set_permissions(role, send_messages=False)
-                cursor.execute('UPDATE MUTEDROLES SET RoleID = ? WHERE ServerID = ?', (role.id, ctx.guild.id))
-                await ctx.send(f':thumbsup: Bound {role.mention} to {ctx.guild.name} as Muted role.')
+        cursor = connection.cursor()   
+        role = await ctx.guild.create_role(name = 'Muted', reason = f'{ctx.author} (ID:{ctx.author.id}) ran /bindmuterole') if not role else
+        await ctx.send(discord.utils.escape_mentions(f'You\'re about to set {role.mention} as this server\'s Muted role. `Y/N`'))
 
+        try:
+            message = await self.bot.wait_for('message', timeout = 60, check = check)
+        except asyncio.TimeoutError: 
+            await ctx.send('You took too long to respond! Aborting process.')            
         else:
-            cursor.execute(f'SELECT RoleID FROM MUTEDROLES WHERE ServerID=?', (ctx.guild.id,))
-            info = cursor.fetchone()
-            if info == None:
+            if message.content.lower() == 'y':
+                for i in ctx.guild.channels:
+                await i.set_permissions(role, send_messages=False)
                 cursor.execute(f'INSERT INTO MUTEDROLES(ServerID, RoleID) VALUES (?, ?)', (ctx.guild.id, role.id))
                 await ctx.send(f':thumbsup: Bound {role.mention} to {ctx.guild.name} as Muted role.')
-            elif discord.utils.get(ctx.guild.roles, id=int(role.id)) != None:
-                await ctx.send('A Muted role has already been bound to this server! Are you sure you want to continue? `yes/no`')
-                def check(message : discord.Message) -> bool:
-                    return message.author == ctx.author and message.channel == ctx.channel
-                
-                try:
-                    message = await self.bot.wait_for('message', timeout = 60, check = check)
-                except asyncio.TimeoutError: 
-                    await ctx.send('You took too long to respond! Aborting process.')            
-                else:
-                    if message.content.lower() == 'yes':
-                        cursor.execute('UPDATE MUTEDROLES SET RoleID = ? WHERE ServerID = ?', (role.id, ctx.guild.id))
-                        await ctx.send(f':thumbsup: Bound {role.mention} to {ctx.guild.name} as Muted role.')
-                    else:
-                        await ctx.send('Process aborted.')
             else:
-                await ctx.send('A Muted role has already been bound to this server, but it was deleted. Binding new Muted role.')
-                role = await ctx.guild.create_role(name = 'Muted', reason = f'{ctx.author} (ID:{ctx.author.id}) ran /bindmuterole')
-                for i in ctx.guild.channels:
-                    await i.set_permissions(role, send_messages=False)
-                cursor.execute('UPDATE MUTEDROLES SET RoleID = ? WHERE ServerID = ?', (role.id, ctx.guild.id))
-                await ctx.send(f':thumbsup: Bound {role.mention} to {ctx.guild.name} as Muted role.')
+                await ctx.send('Process aborted.')
+                await role.delete()
         connection.commit()
         connection.close()
 
@@ -273,48 +226,45 @@ class Moderation(commands.Cog):
     @commands.command()
     async def lock(self, ctx):
         for i in ctx.guild.roles:
-                if i.permissions.manage_messages == True:
-                    pass
-                elif i in ctx.channel.overwrites:
-                    await ctx.channel.set_permissions(i, send_messages=False)
-                else:
-                    pass
+            if i.permissions.manage_messages == True:
+                pass
+            elif i in ctx.channel.overwrites:
+                await ctx.channel.set_permissions(i, send_messages=False)
         await ctx.send(':thumbsup: Locked channel.')
 
     @commands.guild_only()
     @commands.has_permissions(manage_channels=True)
     @commands.command()
     async def unlock(self, ctx):
+        connection = sqlite3.connect('AltBotDataBase.db')
+        cursor.execute(f'SELECT RoleID FROM MUTEDROLES WHERE ServerID=?', (ctx.guild.id,))
+        roleID = cursor.fetchone()[0]
+        connection.close()
         for i in ctx.guild.roles:
-                if i.name == 'Muted':
-                    pass
-                elif i in ctx.channel.overwrites:
-                    await ctx.channel.set_permissions(i, send_messages=True)
-                else:
-                    pass
+            if i.id = roleID:
+                pass
+            elif i in ctx.channel.overwrites:
+                await ctx.channel.set_permissions(i, send_messages=True)
         await ctx.send(':thumbsup: Unlocked channel.')
 
     @commands.guild_only()
     @commands.has_permissions(manage_roles=True)
     @commands.command()
     async def role(self, ctx, member : discord.Member, role : discord.Role):
-        try:
-            await member.add_roles(role, reason=f'{ctx.author}(ID: {ctx.author.id}) ran /role')
-        except discord.Forbidden:
-            await ctx.send('I don\'t have permission to do that! Make sure I have the correct permissions, then try again.')
+        if role not in member.roles:
+            try:
+                await member.add_roles(role, reason=f'{ctx.author}(ID: {ctx.author.id}) ran /role')
+            except discord.Forbidden:
+                await ctx.send(':x: I don\'t have permission to do that! Make sure I have the correct permissions, then try again.')
+            else:
+                await ctx.send(f':white_check_mark: Added {role.name} to {member}')
         else:
-            await ctx.send(f':white_check_mark: Added {role.name} to {member}')
-
-    @commands.guild_only()
-    @commands.has_permissions(manage_roles=True)
-    @commands.command()
-    async def removerole(self, ctx, member : discord.Member, role : discord.Role):
-        try:
-            await member.remove_roles(role, reason=f'{ctx.author}(ID: {ctx.author.id}) ran /removerole')
-        except discord.Forbidden:
-            await ctx.send('I don\'t have permission to do that! Make sure I have the correct permissions, then try again.')
-        else:
-            await ctx.send(f':white_check_mark: Removed {role.name} from {member}')
+            try:
+                await member.remove_roles(role, reason=f'{ctx.author}(ID: {ctx.author.id}) ran /role')
+            except discord.Forbidden:
+                await ctx.send(':x: I don\'t have permission to do that! Make sure I have the correct permissions, then try again.')
+            else:
+                await ctx.send(f':white_check_mark: Removed {role.name} from {member}')
 
 def setup(bot):
     bot.add_cog(Moderation(bot))
