@@ -24,7 +24,7 @@ class Meta(commands.Cog):
     ''')
 
     #help command
-    @commands.cooldown(1, 3, BucketType.user)
+    '''@commands.cooldown(1, 3, BucketType.user)
     @commands.command(ignore_extra=True)
     async def help(self, ctx, info=None):
         if not info:
@@ -81,7 +81,7 @@ class Meta(commands.Cog):
             embed.add_field(name='/bindloggingchannel [channel]', value='Bind a logging channel to the server. Requires manage channels permission.')
             embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} | Support: https://discord.gg/33utPs9', icon_url=ctx.author.avatar_url)
         else:
-            await ctx.send('That\'s not a valid field!')
+            await ctx.send('That\'s not a valid field!')'''
         
     @commands.command()
     async def acceptbug(self, ctx, userid, bug_number, *, description):
@@ -200,20 +200,18 @@ class Meta(commands.Cog):
         embed.set_thumbnail(url=member.avatar_url)
         embed.set_footer(text=f'Requested by {ctx.author} | Support: https://discord.gg/33utPs9', icon_url=ctx.author.avatar_url)
         embed.add_field(name='Discord ID:', value=member.id)
-        if member.display_name == member.name:
-            value1 = 'None'
-        else:
-            value1 = member.display_name
+        value1 = 'None' if member.display_name == member.name else member.display_name
         embed.add_field(name='Nickname:', value=value1)
         embed.add_field(name='Created at:', value=member.created_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
         embed.add_field(name='Joined at:', value=member.joined_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
-        embed.add_field(name=f'Roles: ({len(roles)})', value=' '.join([role.mention for role in roles]))
+        embed.add_field(
+            name=f'Roles: ({len(roles)})',
+            value=' '.join(role.mention for role in roles),
+        )
+
         embed.add_field(name='Top Role:', value=member.top_role.mention)
 
-        if member.bot:
-            bot_status = 'Yes'
-        else:
-            bot_status = 'No'
+        bot_status = 'Yes' if member.bot else 'No'
         embed.add_field(name='Am I a bot:', value=bot_status)
 
         if member.premium_since != None:

@@ -4,6 +4,8 @@ from discord.ext import commands, tasks
 from discord.ext.commands.cooldowns import BucketType
 
 '''
+-- COG IS STILL IN DEVELOPMENT --
+
 Massive thanks to Myst, without their great guide/example on music player this would not have been possible.
 Example here: https://gist.github.com/EvieePy/ab667b74e9758433b3eb806c53a19f34
 '''

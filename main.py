@@ -1,31 +1,29 @@
 import discord
 import asyncio
 from discord.ext import commands, tasks
-from discord.ext.commands.cooldowns import BucketType
 from itertools import cycle
 import sys
 import traceback
 import os
 from dotenv import load_dotenv
-import sqlite3
+import aiosqlite
+import dbl
 
 load_dotenv()
 bot = commands.Bot(command_prefix = commands.when_mentioned_or('/', '@'), case_insensitive=True)
-bot.remove_command('help')
+class MyNewHelp(commands.MinimalHelpCommand):
+    async def send_pages(self):
+        destination = self.get_destination()
+        for page in self.paginator.pages:
+            emby = discord.Embed(description=page)
+            await destination.send(embed=emby)
+
+bot.help_command = MyNewHelp()
 bot_version = 'Version 0.1.12 [BETA]'
 intents = discord.Intents.default()
 intents.members = True
 #a regular, b remembrance day, c halloween
-statuschoice = 'a'
-regularstatus = cycle(['/help is the way to go!', 'Use /about to learn more!'])
-statusremember = cycle(['Lest we forget', 'Lest we forget', 'Lest we forget'])
-statushalloween = cycle(['/help is the way to go!', 'Use /about to learn more!', 'Happy Halloween!', 'Happy Halloween!', 'Happy Halloween!'])
-if statuschoice == 'a':
-    status = regularstatus
-elif statuschoice == 'b':
-    status = statusremember
-else:
-    status = statushalloween
+status = cycle(['/help is the way to go!', 'Use /about to learn more!'])
 
 #when the bot is ready
 @bot.event
@@ -58,16 +56,17 @@ async def on_command_error(ctx, error):
             \n The devs have been notified. If this continues, please file a bug report using `/bugreport`.')
         await ctx.send(embed=embed)
 
+
 def findPrefix(bot, message):
-    connection = sqlite3.connect('AltBotDataBase.db')
-    cursor = connection.cursor()
-    cursor.execute('SELECT * from SERVERADMIN WHERE id = ?', (message.guild.id))
-    if cursor.fetchone() is None:
-        cursor.execute('INSERT INTO SERVERADMIN VALUES (?,?)', (message.guild.id, '/'))
+    connection = asyncio.run(aiosqlite.connect('AltBotDataBase.db'))
+    cursor = asyncio.run(connection.cursor())
+    asyncio.run(cursor.execute('SELECT * from SERVERADMIN WHERE id = ?', (message.guild.id)))
+    if asyncio.run(cursor.fetchone()) is None:
+        asyncio.run(cursor.execute('INSERT INTO SERVERADMIN VALUES (?,?)', (message.guild.id, '/')))
         return '/'
     else:
-        cursor.execute('SELECT * FROM SERVERADMIN WHERE id = ?', (message.guild.id,))
-        server = cursor.fetchone()
+        asyncio.run(cursor.execute('SELECT * FROM SERVERADMIN WHERE id = ?', (message.guild.id,)))
+        server = asyncio.run(cursor.fetchone())
         return server[1]
 
 @bot.event
@@ -86,6 +85,17 @@ async def on_message(message):
 @tasks.loop(seconds=10)
 async def change_status():
     await bot.change_presence(activity=discord.Game(next(status)))
+
+# This example uses dblpy's webhook system.
+# In order to run the webhook, at least webhook_port argument must be specified (number between 1024 and 49151).
+
+dbl_token = os.getenv('TOPGGTOKEN')
+bot.dblpy = dbl.DBLClient(bot, dbl_token, webhook_path='/dblwebhook', webhook_auth='password', webhook_port=5000)
+
+@bot.event
+async def on_dbl_vote(data):
+    """An event that is called whenever someone votes for the bot on top.gg."""
+    print(f"Received an upvote:\n{data}")
 
 load_list = ['moderation', 'fun', 'meta', 'logging', 'admin', 'premium', 'music']
 
