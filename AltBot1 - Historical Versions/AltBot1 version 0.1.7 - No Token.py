@@ -120,22 +120,22 @@ async def dev_update(ctx):
 #whois command
 @bot.command()
 async def whois(ctx, member: discord.Member = None):
-    member = ctx.author if not member else member
-    roles = [role for role in member.roles]
-    embed = discord.Embed (color=member.color, timestamp=ctx.message.created_at)
-    embed.set_author(name=f'User info on {member}')
-    embed.set_thumbnail(url=member.avatar_url)
-    embed.set_footer(text=f'Requested by {ctx.author} ' + embed_footer, icon_url=ctx.author.avatar_url)
-    embed.add_field(name='Discord ID:', value=member.id)
-    if member.display_name == member.name:
-        value1 = 'None'
-    else:
-        value1 = member.display_name
-    embed.add_field(name='Nickname:', value=value1)
-    embed.add_field(name='Created at:', value=member.created_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
-    embed.add_field(name='Joined at:', value=member.joined_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
-    embed.add_field(name=f'Roles: ({len(roles)})', value=" ".join([role.mention for role in roles]))
-    embed.add_field(name='Top Role:', value=member.top_role.mention)
+ member = ctx.author if not member else member
+ roles = [role for role in member.roles]
+ embed = discord.Embed (color=member.color, timestamp=ctx.message.created_at)
+ embed.set_author(name=f'User info on {member}')
+ embed.set_thumbnail(url=member.avatar_url)
+ embed.set_footer(text=f'Requested by {ctx.author} ' + embed_footer, icon_url=ctx.author.avatar_url)
+ embed.add_field(name='Discord ID:', value=member.id)
+ value1 = 'None' if member.display_name == member.name else member.display_name
+ embed.add_field(name='Nickname:', value=value1)
+ embed.add_field(name='Created at:', value=member.created_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
+ embed.add_field(name='Joined at:', value=member.joined_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
+ embed.add_field(
+     name=f'Roles: ({len(roles)})',
+     value=" ".join(role.mention for role in roles),
+ )
+ embed.add_field(name='Top Role:', value=member.top_role.mention)
     #User.avatar
     #User.avatar_url
     #User.avatar_url_as
@@ -143,21 +143,18 @@ async def whois(ctx, member: discord.Member = None):
     #User.bot
     #User.color
     #User.colour
-    if member.bot == True:
-        bot_status = 'Yes'
-    else:
-        bot_status = 'No'
-    embed.add_field(name='Am I a bot:', value=bot_status)
-    #Member.status
-    #WidgetMember.status
-    #Member.web_status
-    #Member.mobile_status
-    #Member.desktop_status
-    embed.add_field(name='Status:', value=member.status)
-    if ctx.guild != None:
-      await ctx.send(embed=embed)
-    else:
-      await ctx.send(NotInGuild)
+ bot_status = 'Yes' if member.bot == True else 'No'
+ embed.add_field(name='Am I a bot:', value=bot_status)
+ #Member.status
+ #WidgetMember.status
+ #Member.web_status
+ #Member.mobile_status
+ #Member.desktop_status
+ embed.add_field(name='Status:', value=member.status)
+ if ctx.guild != None:
+   await ctx.send(embed=embed)
+ else:
+   await ctx.send(NotInGuild)
 
 @bot.command()
 async def invite(ctx):
@@ -286,26 +283,26 @@ async def coinflip (ctx):
 
 #warn command
 @bot.command()
-async def warn (ctx, member: discord.Member, warnlevel, *, reason = 'no reason'):
-  if ctx.guild != None:
-    if ctx.author.id in mod_ids:
-      warn1 = discord.utils.get(ctx.guild.roles, name="1")
-      warn2 = discord.utils.get(ctx.guild.roles, name="2")
-      success = f'Success! \n {member.mention} has been warned by {ctx.author.mention} for {reason}! ({warnlevel}/3)'
-      if warnlevel == '1':
-        await member.add_roles(warn1, reason=reason)
-        await ctx.send(success)
-      elif warnlevel == '2':
-        await member.add_roles(warn2, reason=reason)
-        await ctx.send(success)
-      elif warnlevel == '3':
-        await ctx.kick(member, reason='3 Warns')
-        await member.send()
-      elif warnlevel > 3:
-        await ctx.send ('Error: There are only 3 warn levels. Please enter a number from 1 to 3.')
-    else: 
-      await ctx.send (NotEnoughPermissions)
-  else:
-    await ctx.send(NotInGuild)
+async def warn(ctx, member: discord.Member, warnlevel, *, reason = 'no reason'):
+ if ctx.guild is None:
+  await ctx.send(NotInGuild)
+
+ elif ctx.author.id in mod_ids:
+  warn1 = discord.utils.get(ctx.guild.roles, name="1")
+  warn2 = discord.utils.get(ctx.guild.roles, name="2")
+  success = f'Success! \n {member.mention} has been warned by {ctx.author.mention} for {reason}! ({warnlevel}/3)'
+  if warnlevel == '1':
+    await member.add_roles(warn1, reason=reason)
+    await ctx.send(success)
+  elif warnlevel == '2':
+    await member.add_roles(warn2, reason=reason)
+    await ctx.send(success)
+  elif warnlevel == '3':
+    await ctx.kick(member, reason='3 Warns')
+    await member.send()
+  elif warnlevel > 3:
+    await ctx.send ('Error: There are only 3 warn levels. Please enter a number from 1 to 3.')
+ else: 
+  await ctx.send (NotEnoughPermissions)
  
 bot.run(token)

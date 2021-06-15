@@ -22,13 +22,14 @@ class Misc(commands.Cog):
         embed.add_field(name='Created at:', value=member.created_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
         embed.add_field(name='Joined at:', value=member.joined_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
 
-        embed.add_field(name=f'Roles: ({len(roles)})', value=" ".join([role.mention for role in roles]))
+        embed.add_field(
+            name=f'Roles: ({len(roles)})',
+            value=" ".join(role.mention for role in roles),
+        )
+
         embed.add_field(name='Top Role:', value=member.top_role.mention)
-        
-        if member.bot == True:
-          bot_status = 'Yes'
-        else:
-          bot_status = 'No'
+
+        bot_status = 'Yes' if member.bot == True else 'No'
         embed.add_field(name='Am I a bot:', value=bot_status)
 
         await ctx.send(embed=embed)

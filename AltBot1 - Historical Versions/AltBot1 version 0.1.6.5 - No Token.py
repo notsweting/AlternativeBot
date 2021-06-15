@@ -109,33 +109,30 @@ async def dev_update(ctx):
 #whois command
 @client.command()
 async def whois(ctx, member: discord.Member = None):
-   member = ctx.author if not member else member
-   roles = [role for role in member.roles]
-   embed = discord.Embed (color=member.color, timestamp=ctx.message.created_at)
-   embed.set_author(name=f'User info on {member}')
-   embed.set_thumbnail(url=member.avatar_url)
-   embed.set_footer(text= f'Requested by {ctx.author.mention} | Developed by {developer} | Contact him for more info! | {bot_invite} | {bot_version}', icon_url=ctx.author.avatar_url)
- 
-   embed.add_field(name='Discord ID:', value=member.id)
-   if member.display_name == member.name:
-     value1 = 'None'
-   else:
-     value1 = member.display_name
-   embed.add_field(name='Nickname:', value=value1)
- 
-   embed.add_field(name='Created at:', value=member.created_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
-   embed.add_field(name='Joined at:', value=member.joined_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
- 
-   embed.add_field(name=f'Roles: ({len(roles)})', value=" ".join([role.mention for role in roles]))
-   embed.add_field(name='Top Role:', value=member.top_role.mention)
-   if member.bot == True:
-     bot_status = 'Yes'
-   else:
-     bot_status = 'No'
-   embed.add_field(name='Am I a bot:', value=bot_status)
- 
- 
-   await ctx.send(embed=embed)
+ member = ctx.author if not member else member
+ roles = [role for role in member.roles]
+ embed = discord.Embed (color=member.color, timestamp=ctx.message.created_at)
+ embed.set_author(name=f'User info on {member}')
+ embed.set_thumbnail(url=member.avatar_url)
+ embed.set_footer(text= f'Requested by {ctx.author.mention} | Developed by {developer} | Contact him for more info! | {bot_invite} | {bot_version}', icon_url=ctx.author.avatar_url)
+
+ embed.add_field(name='Discord ID:', value=member.id)
+ value1 = 'None' if member.display_name == member.name else member.display_name
+ embed.add_field(name='Nickname:', value=value1)
+
+ embed.add_field(name='Created at:', value=member.created_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
+ embed.add_field(name='Joined at:', value=member.joined_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
+
+ embed.add_field(
+     name=f'Roles: ({len(roles)})',
+     value=" ".join(role.mention for role in roles),
+ )
+ embed.add_field(name='Top Role:', value=member.top_role.mention)
+ bot_status = 'Yes' if member.bot == True else 'No'
+ embed.add_field(name='Am I a bot:', value=bot_status)
+
+
+ await ctx.send(embed=embed)
  
 @client.command()
 async def invite(ctx):
@@ -168,14 +165,14 @@ async def purge(ctx, amount=5):
 @client.command()
 async def kick(ctx, member : discord.Member, *, reason=None):
  if ctx.author.id not in mod_ids:
-   await ctx.send("Hmmm.... :thinking: You don't have permission to use this command!")   
+  await ctx.send("Hmmm.... :thinking: You don't have permission to use this command!")
  else:
-   if reason == None:
-     reason = f'{ctx.author.mention}'
-     await kick(member, reason=reason,)   
-   else:
-     reason = reason + f' {ctx.author.mention}'
-     await kick(member, reason=reason,)
+  if reason is None:
+   reason = f'{ctx.author.mention}'
+  else:
+   reason = reason + f' {ctx.author.mention}'
+
+  await kick(member, reason=reason,)
  
 #8ball command
 @client.command(aliases=["8ball"])

@@ -10,7 +10,7 @@ client.remove_command('help')
 
 status_change = True
 
-if status_change is True:
+if status_change:
     status = cycle(['/help is the way to go!', 'Use /about to learn more!', 'Use /info to learn more!', 'Version 0.6 [ALPHA]', 'UNSTABLE',])
 else:
     status = cycle(['UNDER DEVElOPMENT', 'UNDER DEVELOPMENT'])
