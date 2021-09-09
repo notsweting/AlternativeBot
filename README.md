@@ -1,6 +1,10 @@
 # AlternativeBot
 Repository for @AlternativeBot#3969 on Discord.
 
+UPDATE AUG 9 2021
+------------------
+I have decided to stop updating the repository. Unfortunately, because there are certain things that must be made closed source, updating the repo would break the bot. The repo will stay up, just no longer updated.
+
 Invite link for the bot soon.
 
 The bot can be found on discord with the following links:
