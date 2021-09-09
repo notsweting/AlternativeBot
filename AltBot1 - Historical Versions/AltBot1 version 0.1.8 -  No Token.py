@@ -121,37 +121,34 @@ async def dev_update(ctx):
 #whois command
 @bot.command()
 async def whois(ctx, member: discord.Member = None):
-  member = ctx.author if not member else member
-  if ctx.guild != None:
-    roles = [role for role in member.roles]
-    embed = discord.Embed (color=member.color, timestamp=ctx.message.created_at)
-    embed.set_author(name=f'User info on {member}')
-    embed.set_thumbnail(url=member.avatar_url)
-    embed.set_footer(text=f'Requested by {ctx.author} ' + embed_footer, icon_url=ctx.author.avatar_url)
-    embed.add_field(name='Discord ID:', value=member.id)
-    if member.display_name == member.name:
-      value1 = 'None'
-    else:
-      value1 = member.display_name
-    embed.add_field(name='Nickname:', value=value1)
-    embed.add_field(name='Created at:', value=member.created_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
-    embed.add_field(name='Joined at:', value=member.joined_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
-    embed.add_field(name=f'Roles: ({len(roles)})', value=" ".join([role.mention for role in roles]))
-    embed.add_field(name='Top Role:', value=member.top_role.mention)
+ member = ctx.author if not member else member
+ if ctx.guild != None:
+  roles = [role for role in member.roles]
+  embed = discord.Embed (color=member.color, timestamp=ctx.message.created_at)
+  embed.set_author(name=f'User info on {member}')
+  embed.set_thumbnail(url=member.avatar_url)
+  embed.set_footer(text=f'Requested by {ctx.author} ' + embed_footer, icon_url=ctx.author.avatar_url)
+  embed.add_field(name='Discord ID:', value=member.id)
+  value1 = 'None' if member.display_name == member.name else member.display_name
+  embed.add_field(name='Nickname:', value=value1)
+  embed.add_field(name='Created at:', value=member.created_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
+  embed.add_field(name='Joined at:', value=member.joined_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
+  embed.add_field(
+      name=f'Roles: ({len(roles)})',
+      value=" ".join(role.mention for role in roles),
+  )
+  embed.add_field(name='Top Role:', value=member.top_role.mention)
 
-    if member.bot == True:
-      bot_status = 'Yes'
-    else:
-      bot_status = 'No'
-    embed.add_field(name='Am I a bot:', value=bot_status)
+  bot_status = 'Yes' if member.bot == True else 'No'
+  embed.add_field(name='Am I a bot:', value=bot_status)
 
-    if member.premium_since != None:
-      embed.add_field(name='Boosting since:', value=member.premium_since.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
+  if member.premium_since != None:
+    embed.add_field(name='Boosting since:', value=member.premium_since.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
 
-    embed.add_field(name='Status:', value=member.status)
-    await ctx.send(embed=embed)
-  else:
-    await ctx.send(NotInGuild) 
+  embed.add_field(name='Status:', value=member.status)
+  await ctx.send(embed=embed)
+ else:
+  await ctx.send(NotInGuild) 
        
 @bot.command()
 async def invite(ctx):

@@ -179,54 +179,54 @@ async def tonedetector(ctx, *, paragraph):
 #help command
 @bot.command(ignore_extra=True)
 async def help(ctx, info=None):
-  if ctx.prefix == '/':
-    if info == None:
-      embed = discord.Embed(title="AltBot1 Help and Documentation", description="Categories. Do /help [category] to get more info.\
+ if ctx.prefix == '/':
+  if info is None:
+   embed = discord.Embed(title="AltBot1 Help and Documentation", description="Categories. Do /help [category] to get more info.\
       \nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
-      embed.add_field(name='Fun', value='Some fun commands for you to use!')
-      embed.add_field(name='Meta', value='Bot-related and user-related commands. Includes /whois, /about, and /bugreport.')
-      embed.add_field(name='Cleverbot', value='I\'m a very clever bot! Use these commands to bring me to my full capabilities!')
-      embed.add_field(name='Moderation', value='These commands empower the moderation team. Rest assured, I won\'t do what the user can\'t.')
-      embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} {embed_footer}', icon_url=ctx.author.avatar_url)
-      await ctx.send (embed=embed, delete_after=60)
-    elif info.lower()=='fun':
-      embed = discord.Embed(title="AltBot1 Help and Documentation", description="Here are some fun commands for you to use!\
+   embed.add_field(name='Fun', value='Some fun commands for you to use!')
+   embed.add_field(name='Meta', value='Bot-related and user-related commands. Includes /whois, /about, and /bugreport.')
+   embed.add_field(name='Cleverbot', value='I\'m a very clever bot! Use these commands to bring me to my full capabilities!')
+   embed.add_field(name='Moderation', value='These commands empower the moderation team. Rest assured, I won\'t do what the user can\'t.')
+   embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} {embed_footer}', icon_url=ctx.author.avatar_url)
+   await ctx.send (embed=embed, delete_after=60)
+  elif info.lower()=='fun':
+    embed = discord.Embed(title="AltBot1 Help and Documentation", description="Here are some fun commands for you to use!\
       \nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
-      embed.add_field(name="/8ball (question)", value="Ask the magic 8ball a question!")
-      embed.add_field(name='/slap [person]', value='Slap someone.')
-      embed.add_field(name='/hug [person]', value='Hug someone.')
-      embed.add_field(name='/fight [person]', value='Fight someone.')
-      embed.add_field(name='/rockpaperscissors [person] **BETA**', value='Challenge someone to a rock paper scissors challenge! \
+    embed.add_field(name="/8ball (question)", value="Ask the magic 8ball a question!")
+    embed.add_field(name='/slap [person]', value='Slap someone.')
+    embed.add_field(name='/hug [person]', value='Hug someone.')
+    embed.add_field(name='/fight [person]', value='Fight someone.')
+    embed.add_field(name='/rockpaperscissors [person] **BETA**', value='Challenge someone to a rock paper scissors challenge! \
       (Must have DMs open) **WARNING: Command is in beta and may not work as intended. Use /bugreport to report bugs.**')
-      embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} {embed_footer}', icon_url=ctx.author.avatar_url)
-      await ctx.send (embed=embed, delete_after=60)
-    elif info.lower()=='meta':
-      embed = discord.Embed(title="AltBot1 Help and Documentation", description="Meta commands. Concerns more of the geeky side of the userbase.\
+    embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} {embed_footer}', icon_url=ctx.author.avatar_url)
+    await ctx.send (embed=embed, delete_after=60)
+  elif info.lower()=='meta':
+    embed = discord.Embed(title="AltBot1 Help and Documentation", description="Meta commands. Concerns more of the geeky side of the userbase.\
       \nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
-      embed.add_field(name='/about', value='Get information about the bot!')
-      embed.add_field(name="/ping", value="Check the ping of the bot to the Discord API.")    
-      embed.add_field(name='/whois (person)', value='Get info on a member in the server.')
-      embed.add_field(name= '/membercount', value='Get the amount of members in the server.')
-      embed.add_field(name='/bugreport (description)', value='Report a bug!')    
-      embed.add_field(name='~~/suggest (suggestion)~~', value='**Command is currently unavailable. **~~Suggest something for the bot!~~')
-      embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} {embed_footer}', icon_url=ctx.author.avatar_url)
-      await ctx.send (embed=embed, delete_after=60)
-    elif info.lower()=='cleverbot':
-      embed = discord.Embed(title="AltBot1 Help and Documentation", description="Meta commands. Concerns more of the geeky side of the userbase.\
+    embed.add_field(name='/about', value='Get information about the bot!')
+    embed.add_field(name="/ping", value="Check the ping of the bot to the Discord API.")    
+    embed.add_field(name='/whois (person)', value='Get info on a member in the server.')
+    embed.add_field(name= '/membercount', value='Get the amount of members in the server.')
+    embed.add_field(name='/bugreport (description)', value='Report a bug!')    
+    embed.add_field(name='~~/suggest (suggestion)~~', value='**Command is currently unavailable. **~~Suggest something for the bot!~~')
+    embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} {embed_footer}', icon_url=ctx.author.avatar_url)
+    await ctx.send (embed=embed, delete_after=60)
+  elif info.lower()=='cleverbot':
+    embed = discord.Embed(title="AltBot1 Help and Documentation", description="Meta commands. Concerns more of the geeky side of the userbase.\
       \nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
-      embed.add_field(name='/tonedetector **BETA**', value='Detects the tone of your writing. \
+    embed.add_field(name='/tonedetector **BETA**', value='Detects the tone of your writing. \
 **WARNING: Command is in beta and may not work as intended. Use /bugreport to report bugs.**')
-      embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} {embed_footer}', icon_url=ctx.author.avatar_url)
-      await ctx.send (embed=embed, delete_after=60) 
-    elif info.lower()=='mod' or info.lower()=='moderation':
-      embed = discord.Embed(title="AltBot1 Help and Documentation", description="Moderation commands.\nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
-      embed.add_field(name='/purge (no. of messages)', value='Purge messages. Number of messages defaults to 5. Requires manage messages permission.')
-      embed.add_field(name="/kick [member] (reason)", value="Kick a member. Reason defaults to no reason. Requires kick members permission.")
-      embed.add_field(name="/ban [member/user id] (reason)", value="Permanently ban a member. Reason defaults to no reason. Requires ban members permission.")
-      embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} {embed_footer}', icon_url=ctx.author.avatar_url)
-      await ctx.send (embed=embed, delete_after=60)
-  else:
-    await ctx.send('That\'s not a valid field!')
+    embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} {embed_footer}', icon_url=ctx.author.avatar_url)
+    await ctx.send (embed=embed, delete_after=60)
+  elif info.lower() in ['mod', 'moderation']:
+   embed = discord.Embed(title="AltBot1 Help and Documentation", description="Moderation commands.\nThis message will be deleted in 60 seconds.", colour=ctx.author.color)
+   embed.add_field(name='/purge (no. of messages)', value='Purge messages. Number of messages defaults to 5. Requires manage messages permission.')
+   embed.add_field(name="/kick [member] (reason)", value="Kick a member. Reason defaults to no reason. Requires kick members permission.")
+   embed.add_field(name="/ban [member/user id] (reason)", value="Permanently ban a member. Reason defaults to no reason. Requires ban members permission.")
+   embed.set_footer(text=f'(optional) [required] | Requested by {ctx.author} {embed_footer}', icon_url=ctx.author.avatar_url)
+   await ctx.send (embed=embed, delete_after=60)
+ else:
+  await ctx.send('That\'s not a valid field!')
 
 #ping command
 @bot.command()
@@ -275,37 +275,34 @@ async def dev_update(ctx):
 #whois command
 @bot.command()
 async def whois(ctx, *, member: discord.Member = None):
-  member = ctx.author if not member else member
-  if ctx.guild != None:
-    roles = [role for role in member.roles]
-    embed = discord.Embed (color=member.color, timestamp=ctx.message.created_at)
-    embed.set_author(name=f'User info on {member}')
-    embed.set_thumbnail(url=member.avatar_url)
-    embed.set_footer(text=f'Requested by {ctx.author} ' + embed_footer, icon_url=ctx.author.avatar_url)
-    embed.add_field(name='Discord ID:', value=member.id)
-    if member.display_name == member.name:
-      value1 = 'None'
-    else:
-      value1 = member.display_name
-    embed.add_field(name='Nickname:', value=value1)
-    embed.add_field(name='Created at:', value=member.created_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
-    embed.add_field(name='Joined at:', value=member.joined_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
-    embed.add_field(name=f'Roles: ({len(roles)})', value=" ".join([role.mention for role in roles]))
-    embed.add_field(name='Top Role:', value=member.top_role.mention)
+ member = ctx.author if not member else member
+ if ctx.guild != None:
+  roles = [role for role in member.roles]
+  embed = discord.Embed (color=member.color, timestamp=ctx.message.created_at)
+  embed.set_author(name=f'User info on {member}')
+  embed.set_thumbnail(url=member.avatar_url)
+  embed.set_footer(text=f'Requested by {ctx.author} ' + embed_footer, icon_url=ctx.author.avatar_url)
+  embed.add_field(name='Discord ID:', value=member.id)
+  value1 = 'None' if member.display_name == member.name else member.display_name
+  embed.add_field(name='Nickname:', value=value1)
+  embed.add_field(name='Created at:', value=member.created_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
+  embed.add_field(name='Joined at:', value=member.joined_at.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
+  embed.add_field(
+      name=f'Roles: ({len(roles)})',
+      value=" ".join(role.mention for role in roles),
+  )
+  embed.add_field(name='Top Role:', value=member.top_role.mention)
 
-    if member.bot:
-      bot_status = 'Yes'
-    else:
-      bot_status = 'No'
-    embed.add_field(name='Am I a bot:', value=bot_status)
+  bot_status = 'Yes' if member.bot else 'No'
+  embed.add_field(name='Am I a bot:', value=bot_status)
 
-    if member.premium_since != None:
-      embed.add_field(name='Boosting since:', value=member.premium_since.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
+  if member.premium_since != None:
+    embed.add_field(name='Boosting since:', value=member.premium_since.strftime('%a, %#d %B %Y, %I:%M %p UTC'))
 
-    embed.add_field(name='Status:', value=member.status)
-    await ctx.send(embed=embed)
-  else:
-    await ctx.send(NotInGuild) 
+  embed.add_field(name='Status:', value=member.status)
+  await ctx.send(embed=embed)
+ else:
+  await ctx.send(NotInGuild) 
        
 @bot.command()
 async def invite(ctx):
